@@ -1,0 +1,24 @@
+{
+  "name": "nymDrive",
+  "version": "0.0.1",
+  "description": "An open-source, decentralized, E2E encrypted, privacy friendly alternative to Google Drive/Dropbox.",
+  "main": "main/index.js",
+  "scripts": {
+    "start": "electron .",
+    "start-react": "(cd renderer && npm start)"
+  },
+  "dependencies": {
+    "electron": "^16.0.0",
+    "lokijs": "^1.5.12",
+    "ws": "^8.3.0"
+  },
+  "devDependencies": {
+    "electron-reloader": "^1.2.1",
+    "eslint": "^7.11.0",
+    "eslint-config-airbnb": "^19.0.1",
+    "eslint-plugin-import": "^2.25.3",
+    "eslint-plugin-jsx-a11y": "^6.5.1",
+    "eslint-plugin-react": "^7.27.1",
+    "eslint-plugin-react-hooks": "^4.3.0"
+  }
+}
