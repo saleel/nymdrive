@@ -212,7 +212,13 @@ class DB {
       hash,
     })[0];
 
-    await fs.unlinkSync(file.systemPath); // TODO: Make it hard delete
+    try {
+      await fs.unlinkSync(file.systemPath); // TODO: Make it hard delete
+    } catch (error) {
+      console.error(error);
+    }
+
+    this.filesCollection.remove(file);
   }
 
   async deleteFile(hash) {
@@ -229,7 +235,7 @@ class DB {
       hash,
     });
 
-    await this.filesCollection.remove(file);
+    this.filesCollection.remove(file);
   }
 
   // Delete file downloaded for opening

@@ -91,7 +91,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
       <div className="toolbar">
         <div className="toolbar-actions pull-right">
 
-          {selectedFile && selectedFile.status === Statuses.STORED && (
+          {selectedFile && selectedFile.status !== Statuses.PENDING && (
             <>
               <button
                 type="button"
