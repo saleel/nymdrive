@@ -2,10 +2,11 @@ const WebSocket = require('ws');
 const { NYM_CLIENT_URL, NYM_SERVER_ADDRESS } = require('./config');
 
 class NymClient {
-  constructor({ onConnect }) {
+  constructor({ onConnect, onReceive }) {
     this.actionWaiters = {};
     this.connect();
     this.onConnect = onConnect;
+    this.onReceive = onReceive; // When SHARE action is received
   }
 
   connect() {
@@ -34,7 +35,19 @@ class NymClient {
   }
 
   onMessage(dataBuff) {
-    const message = JSON.parse(dataBuff.toString());
+    let message;
+    let messageString = dataBuff.toString();
+
+    try {
+      if (!messageString.startsWith('{')) {
+        // Trim junk characters at the beginning
+        messageString = messageString.slice(messageString.indexOf('{'), messageString.length);
+      }
+      message = JSON.parse(messageString);
+    } catch (error) {
+      console.error('Error parsing JSON', messageString);
+      return;
+    }
 
     if (message.type === 'selfAddress') {
       const selfAdd = message.address;
@@ -42,14 +55,17 @@ class NymClient {
       console.log(`nymAddress: ${selfAdd}`);
     } else {
       try {
-        const data = JSON.parse(message.message);
-        if (data.actionId && this.actionWaiters[data.actionId]) {
+        const data = message.action ? message : JSON.parse(message.message);
+
+        if (data.action === 'SHARE') {
+          this.onReceive(data);
+        } else if (data.actionId && this.actionWaiters[data.actionId]) {
           this.actionWaiters[data.actionId](data);
         } else {
           throw new Error('No handler for data', data);
         }
       } catch (error) {
-        console.warn(error, message.message);
+        console.warn(error, message);
       }
     }
   }
@@ -69,33 +85,37 @@ class NymClient {
     });
   }
 
-  async sendData(message) {
+  async sendData(message, recipient) {
     await this.isReady();
 
-    const actionId = Math.random().toString(36).slice(2);
+    return new Promise((resolve, reject) => {
+      const actionId = Math.random().toString(36).slice(2);
 
-    this.ws.send(JSON.stringify({
-      type: 'send',
-      message: JSON.stringify({
-        ...message,
-        senderAddress: this.myNymAddress,
-        actionId,
-      }),
-      recipient: NYM_SERVER_ADDRESS,
-      withReplySurb: false,
-    }), (err) => {
-      if (err) {
-        throw err;
-      }
+      this.ws.send(JSON.stringify({
+        type: 'send',
+        message: JSON.stringify({
+          ...message,
+          senderAddress: this.myNymAddress,
+          actionId,
+        }),
+        recipient: recipient || NYM_SERVER_ADDRESS,
+        withReplySurb: false,
+      }), (err) => {
+        if (err) {
+          reject(err);
+        }
 
-      console.log(`Action ${actionId} send to nym`);
-    });
+        console.log(`Action ${message.action} with ID ${actionId} send to nym`);
 
-    return new Promise((resolve) => {
-      this.actionWaiters[actionId] = (response) => {
-        console.log(`Found response for action ${actionId}`);
-        resolve(response);
-      };
+        if (message.action === 'SHARE') {
+          resolve(true);
+        } else {
+          this.actionWaiters[actionId] = (response) => {
+            console.log(`Found response for action ${actionId}`);
+            resolve(response);
+          };
+        }
+      });
     });
   }
 }

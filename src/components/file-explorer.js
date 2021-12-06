@@ -1,5 +1,5 @@
 import React from 'react';
-import PropTypes from 'prop-types';
+import PropTypes, { func } from 'prop-types';
 import {
   GlobalPaths, GlobalPathsDisplay, Icons, Statuses,
 } from '../constants';
@@ -91,13 +91,32 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
     }
   }
 
+  async function onShare() {
+    const clientAddress = await prompt({
+      title: `Share ${selectedFile.name}`,
+      description: 'Enter the nym client address of the person you want to share this file with',
+    });
+
+    const message = await window.DB.shareFile(selectedFile.hash, clientAddress);
+
+    window.alert(message || 'File shared successfully');
+  }
+
+  function isFileSelected() {
+    return selectedFile && selectedFile.type !== 'FOLDER';
+  }
+
+  function isStoredFileSelected() {
+    return isFileSelected() && selectedFile.status !== Statuses.PENDING;
+  }
+
   return (
     <div className="window">
 
       <div className="toolbar">
         <div className="toolbar-actions pull-right">
 
-          {selectedFile && selectedFile.status !== Statuses.PENDING && (
+          {isStoredFileSelected() && (
             <>
               <button
                 type="button"
@@ -117,6 +136,17 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
                 <span className="icon icon-trash" />
               </button>
             </>
+          )}
+
+          {isFileSelected() && (
+            <button
+              type="button"
+              className="btn"
+              onClick={onShare}
+              title="Share"
+            >
+              <span className="icon icon-share" />
+            </button>
           )}
 
           <button

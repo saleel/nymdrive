@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('DB', {
   fetchFile: db.fetchFile,
   deleteFileLocally: db.deleteFileLocally,
   deleteFile: db.deleteFile,
+  shareFile: db.shareFile,
 });
 
 contextBridge.exposeInMainWorld('electron', {

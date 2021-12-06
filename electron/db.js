@@ -29,6 +29,8 @@ class DB {
     this.processPendingFiles = this.processPendingFiles.bind(this);
     this.deleteFileLocally = this.deleteFileLocally.bind(this);
     this.deleteFile = this.deleteFile.bind(this);
+    this.shareFile = this.shareFile.bind(this);
+    this.onReceive = this.onReceive.bind(this);
 
     this.isReady = false;
 
@@ -56,13 +58,39 @@ class DB {
     /** @type {import("./nym-client")} */
     this.nymClient = new NymClient({
       onConnect: this.processPendingFiles, // Upload all pending files
+      onReceive: this.onReceive,
     });
   }
 
   async processPendingFiles() {
     // Upload pending files
     this.findFiles({ status: Statuses.PENDING })
-      .then((files) => (files || []).forEach((f) => this.encryptAndStore(f)));
+      .then((files) => (files || [])
+        .filter((f) => f.path !== 'SharedWithMe' && f.type !== 'FOLDER')
+        .forEach((f) => this.encryptAndStore(f)));
+  }
+
+  async onReceive(data) {
+    console.log('Received', data.name);
+
+    if (this.filesCollection.find({
+      path: 'SharedWithMe',
+      name: data.name,
+    })) {
+      return false;
+    }
+
+    return this.filesCollection.insert({
+      path: 'SharedWithMe',
+      encryptionKey: data.encryptionKey,
+      hash: data.hash,
+      name: data.name,
+      size: data.size,
+      type: data.type,
+      status: Statuses.STORED,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }, false);
   }
 
   async waitTillReady() {
@@ -255,6 +283,30 @@ class DB {
         });
       }
     }
+  }
+
+  async shareFile(hash, recipient) {
+    const file = this.filesCollection.find({
+      hash,
+    })[0];
+
+    if (file) {
+      try {
+        await this.nymClient.sendData({
+          action: 'SHARE',
+          encryptionKey: file.encryptionKey,
+          hash,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        }, recipient);
+      } catch (error) {
+        console.error(error);
+        return error.message;
+      }
+    }
+
+    return false;
   }
 }
 

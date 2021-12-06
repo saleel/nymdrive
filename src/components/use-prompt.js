@@ -8,6 +8,7 @@ function usePrompt() {
       document.getElementById('modal').style.display = 'block';
 
       function closeModal() {
+        document.getElementById('prompt-input').value = '';
         document.getElementById('modal').style.display = 'none';
       }
 
@@ -19,8 +20,8 @@ function usePrompt() {
 
       function onSubmit(e) {
         e.preventDefault();
-        closeModal(false);
         const { value } = document.getElementById('prompt-input');
+        closeModal(false);
         resolve(value);
       }
 
