@@ -1,9 +1,9 @@
+const { shell } = require('electron');
 const Loki = require('lokijs');
 const fs = require('fs');
 const FileAdapter = require('lokijs/src/loki-fs-sync-adapter');
 const crypto = require('crypto');
-const { shell } = require('electron');
-const path = require('path');
+const pathLib = require('path');
 const { hashFile, encryptFile, decryptFile } = require('./utils');
 const NymClient = require('./nym-client');
 
@@ -37,8 +37,11 @@ class DB {
 
     /** @type {import("./nym-client")} */
     this.nymClient = new NymClient({
-      onConnect: this.processPendingFiles,
+      onConnect: this.processPendingFiles, // Upload all pending files
     });
+
+    // Delete any temporarily downloaded files in the previous session
+    this.deleteLocalFiles();
 
     this.db = new Loki(`${this.appDataPath}/nymdrive.db`, {
       adapter: new FileAdapter(),
@@ -124,8 +127,6 @@ class DB {
       encryptionKey: key.toString('hex'),
     });
 
-    console.log(encryptedFileString);
-
     // Upload to NYM and wait for response
     const response = await this.nymClient.sendData({
       action: 'STORE',
@@ -191,7 +192,7 @@ class DB {
 
     const decrypted = await decryptFile(encryptedFileString, file.encryptionKey);
 
-    const destinationPath = path.join(this.appDataPath, '/', file.name);
+    const destinationPath = pathLib.join(this.appDataPath, '/', file.name);
 
     fs.writeFileSync(destinationPath, decrypted);
 
@@ -199,7 +200,10 @@ class DB {
 
     await this.updateFile(hash, {
       status: 'STORED',
+      localPath: destinationPath,
     });
+
+    return destinationPath;
   }
 
   async deleteFileLocally(hash) {
@@ -207,7 +211,7 @@ class DB {
       hash,
     })[0];
 
-    await fs.unlinkSync(file.systemPath);
+    await fs.unlinkSync(file.systemPath); // TODO: Make it hard delete
   }
 
   async deleteFile(hash) {
@@ -225,6 +229,17 @@ class DB {
     });
 
     await this.filesCollection.remove({ hash });
+  }
+
+  // Delete file downloaded for opening
+  deleteLocalFiles() {
+    const files = this.filesCollection.find();
+
+    for (const file of files) {
+      if (file.localPath) {
+        fs.unlinkSync(file.localPath);
+      }
+    }
   }
 }
 

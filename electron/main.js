@@ -1,6 +1,7 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
+require('./event-handlers');
 
 // try {
 // require('electron-reloader')(module, { ignore: '*.db' });
@@ -10,8 +11,8 @@ const ui = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../
 
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1000,
+    height: 800,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

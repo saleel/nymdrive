@@ -1,12 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const path = require('path');
 const DB = require('./db');
-
-contextBridge.exposeInMainWorld('electron', {
-  startDrag: (fileName) => {
-    ipcRenderer.send('ondragstart', path.join(process.cwd(), fileName));
-  },
-});
 
 const db = new DB();
 contextBridge.exposeInMainWorld('DB', {
@@ -16,4 +9,12 @@ contextBridge.exposeInMainWorld('DB', {
   fetchFile: db.fetchFile,
   deleteFileLocally: db.deleteFileLocally,
   deleteFile: db.deleteFile,
+});
+
+contextBridge.exposeInMainWorld('electron', {
+  startDrag: async (file) => {
+    if (file.localPath) {
+      ipcRenderer.send('ondragstart', file.localPath);
+    }
+  },
 });

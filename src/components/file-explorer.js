@@ -11,7 +11,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
 
   const [files, { reFetch: reFetchFiles }] = usePromise(
     () => window.DB.findFiles({ path: currentPath }),
-    { defaultValue: [], dependencies: [currentPath], refreshInterval: 5000 },
+    { defaultValue: [], dependencies: [currentPath], refreshInterval: 1000 },
   );
 
   async function onDrop(e) {
@@ -73,6 +73,12 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
 
   async function onDeleteClick() {
     await window.DB.deleteFile(selectedFile.hash);
+  }
+
+  async function onFileDrag(file) {
+    if (window.electron?.startDrag) {
+      await window.electron.startDrag(file);
+    }
   }
 
   return (
@@ -155,9 +161,11 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
                 {files.map((file) => (
                   <tr
                     key={file.id || file.name}
+                    draggable={file.localPath ? 'true' : 'false'}
                     onClick={() => { onFileClick(file); }}
                     onDoubleClick={() => { onFileDoubleClick(file); }}
                     className={selectedFile?.name === file.name ? 'active' : ''}
+                    onDragStart={(e) => { e.preventDefault(); onFileDrag(file); }}
                   >
                     <td>
                       <span className={`icon icon-${Icons[file.type] || Icons.file} mr-2`} />
