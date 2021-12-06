@@ -292,6 +292,7 @@ class DB {
 
     if (file) {
       try {
+        // TODO: See if this data needs to be encrypted
         await this.nymClient.sendData({
           action: 'SHARE',
           encryptionKey: file.encryptionKey,
