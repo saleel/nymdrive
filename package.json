@@ -5,7 +5,7 @@
   "main": "electron/main.js",
   "homepage": "./",
   "scripts": {
-    "start-react": "BROWSER=none react-scripts start",
+    "start-react": "ESLINT_NO_DEV_ERRORS='true' BROWSER=none react-scripts start",
     "build-react": "react-scripts build",
     "dev": "concurrently -k \"npm run start-react\" \"npm run electron\"",
     "electron": "wait-on tcp:3000 && electron-forge start",

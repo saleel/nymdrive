@@ -4,10 +4,13 @@ import {
   GlobalPaths, GlobalPathsDisplay, Icons, Statuses,
 } from '../constants';
 import usePromise from '../hooks/use-promise';
+import usePrompt from './use-prompt';
 
 const FileExplorer = function FileExplorer({ path: initialPath }) {
   const [currentPath, setCurrentPath] = React.useState(initialPath);
   const [selectedFile, setSelectedFile] = React.useState();
+
+  const prompt = usePrompt();
 
   const [files, { reFetch: reFetchFiles }] = usePromise(
     () => window.DB.findFiles({ path: currentPath }),
@@ -38,14 +41,17 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
 
   async function onCreateFolderClick(e) {
     e.preventDefault();
-    const folderName = 'photos' || window.prompt('Enter the name of the folder you want to create');
-
-    if (files.some((f) => f.name === folderName)) {
-      alert(`There already exist a file or folder named ${folderName}.`);
-      return;
-    }
+    const folderName = await prompt({
+      title: 'Create folder',
+      description: 'Enter the name of the folder you want to create',
+    });
 
     if (folderName) {
+      if (files.some((f) => f.name === folderName)) {
+        alert(`There already exist a file or folder named ${folderName}.`);
+        return;
+      }
+
       await window.DB.createFolder({
         name: folderName,
         path: currentPath,
