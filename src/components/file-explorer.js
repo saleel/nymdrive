@@ -68,11 +68,15 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
   }
 
   async function onDeleteLocalClick() {
-    await window.DB.deleteFileLocally(selectedFile.hash);
+    if (window.confirm(`Are you sure you want to delete the local copy ${selectedFile.systemPath}?`)) {
+      await window.DB.deleteFileLocally(selectedFile.hash);
+    }
   }
 
   async function onDeleteClick() {
-    await window.DB.deleteFile(selectedFile.hash);
+    if (window.confirm('Are you sure you want to delete the file stored in the cloud?')) {
+      await window.DB.deleteFile(selectedFile.hash);
+    }
   }
 
   async function onFileDrag(file) {

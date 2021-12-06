@@ -12,6 +12,7 @@ const COLLECTION_NAME = 'files';
 const Statuses = {
   PENDING: 'PENDING',
   STORED: 'STORED',
+  FETCHING: 'FETCHING',
 };
 
 class DB {
@@ -35,14 +36,6 @@ class DB {
 
     console.debug('App Data Path: ', this.appDataPath);
 
-    /** @type {import("./nym-client")} */
-    this.nymClient = new NymClient({
-      onConnect: this.processPendingFiles, // Upload all pending files
-    });
-
-    // Delete any temporarily downloaded files in the previous session
-    this.deleteLocalFiles();
-
     this.db = new Loki(`${this.appDataPath}/nymdrive.db`, {
       adapter: new FileAdapter(),
       autoload: true,
@@ -54,7 +47,15 @@ class DB {
           this.filesCollection = this.db.addCollection(COLLECTION_NAME);
         }
         this.isReady = true;
+
+        // Delete any temporarily downloaded files in the previous session
+        this.deleteLocalFiles();
       },
+    });
+
+    /** @type {import("./nym-client")} */
+    this.nymClient = new NymClient({
+      onConnect: this.processPendingFiles, // Upload all pending files
     });
   }
 
@@ -180,7 +181,7 @@ class DB {
     }
 
     await this.updateFile(hash, {
-      status: 'FETCHING',
+      status: Statuses.FETCHING,
     });
 
     const response = await this.nymClient.sendData({
@@ -199,7 +200,7 @@ class DB {
     shell.openPath(destinationPath);
 
     await this.updateFile(hash, {
-      status: 'STORED',
+      status: Statuses.STORED,
       localPath: destinationPath,
     });
 
@@ -224,11 +225,11 @@ class DB {
     }
 
     await this.nymClient.sendData({
-      action: 'DELETE',
+      action: 'REMOVE',
       hash,
     });
 
-    await this.filesCollection.remove({ hash });
+    await this.filesCollection.remove(file);
   }
 
   // Delete file downloaded for opening
@@ -236,8 +237,16 @@ class DB {
     const files = this.filesCollection.find();
 
     for (const file of files) {
-      if (file.localPath) {
-        fs.unlinkSync(file.localPath);
+      if (file.status === Statuses.STORED && file.localPath) {
+        try {
+          fs.unlinkSync(file.localPath);
+        } catch (e) {
+          console.error(e);
+        }
+
+        this.updateFile(file.hash, {
+          localPath: null,
+        });
       }
     }
   }
