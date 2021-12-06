@@ -5,14 +5,15 @@
   "main": "electron/main.js",
   "homepage": "./",
   "scripts": {
-    "start-react": "react-scripts start",
+    "start-react": "BROWSER=none react-scripts start",
     "build-react": "react-scripts build",
-    "dev": "concurrently -k \"BROWSER=none npm run start-react\" \"npm run electron\"",
+    "dev": "concurrently -k \"npm run start-react\" \"npm run electron\"",
     "electron": "wait-on tcp:3000 && electron-forge start",
     "package": "react-scripts build && electron-forge package",
     "make": "react-scripts build && electron-forge make"
   },
   "dependencies": {
+    "electron-is-dev": "^2.0.0",
     "lokijs": "^1.5.12",
     "prop-types": "^15.7.2",
     "react": "^17.0.2",
@@ -26,8 +27,8 @@
     "@electron-forge/maker-rpm": "^6.0.0-beta.52",
     "@electron-forge/maker-squirrel": "^6.0.0-beta.52",
     "@electron-forge/maker-zip": "^6.0.0-beta.52",
-    "concurrently": "^6.4.0",
     "electron": "^16.0.0",
+    "concurrently": "^6.4.0",
     "electron-reloader": "^1.2.1",
     "eslint": "^7.11.0",
     "eslint-config-airbnb": "^19.0.2",
@@ -42,7 +43,7 @@
     "forge": {
       "packagerConfig": {
         "icon": "src/icons/mac/icon.icns",
-        "name": "Nym Drive",
+        "name": "NymDrive",
         "asar": true
       },
       "makers": [

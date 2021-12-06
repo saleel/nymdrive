@@ -120,7 +120,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
 
           <div className="pane pane-sm sidebar">
             <nav className="nav-group">
-              <h5 className="nav-group-title">Nym Drive</h5>
+              <h5 className="nav-group-title">NymDrive</h5>
               {Object.keys(GlobalPaths).map((path) => (
                 <span
                   key={path}

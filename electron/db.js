@@ -31,14 +31,16 @@ class DB {
 
     this.isReady = false;
 
-    this.appDataPath = '/tmp'; // TODO: Change this to app.getPath() (not working with contextIsolation)
+    this.appDataPath = __dirname; // TODO: Change to app.getPath (not working with contextIsolation)
+
+    console.debug('App Data Path: ', this.appDataPath);
 
     /** @type {import("./nym-client")} */
     this.nymClient = new NymClient({
       onConnect: this.processPendingFiles,
     });
 
-    this.db = new Loki('nymdrive.db', {
+    this.db = new Loki(`${this.appDataPath}/nymdrive.db`, {
       adapter: new FileAdapter(),
       autoload: true,
       autosave: true,
@@ -176,6 +178,10 @@ class DB {
       throw new Error(`No file found with hash ${hash}`);
     }
 
+    await this.updateFile(hash, {
+      status: 'FETCHING',
+    });
+
     const response = await this.nymClient.sendData({
       action: 'FETCH',
       hash,
@@ -183,15 +189,17 @@ class DB {
 
     const { content: encryptedFileString } = response;
 
-    console.log(encryptedFileString);
-
     const decrypted = await decryptFile(encryptedFileString, file.encryptionKey);
 
-    const destinationPath = path.join(this.appDataPath, file.path);
-    fs.writeFileSync(destinationPath, decrypted);
-    console.log(destinationPath);
+    const destinationPath = path.join(this.appDataPath, '/', file.name);
 
-    shell.openExternal(destinationPath);
+    fs.writeFileSync(destinationPath, decrypted);
+
+    shell.openPath(destinationPath);
+
+    await this.updateFile(hash, {
+      status: 'STORED',
+    });
   }
 
   async deleteFileLocally(hash) {
