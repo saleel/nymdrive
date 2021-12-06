@@ -6,7 +6,7 @@
         "node": true
     },
     "extends": [
-        "plugin:react/recommended",
+        "react-app",
         "airbnb"
     ],
     "parserOptions": {
@@ -19,12 +19,29 @@
         "react"
     ],
     "rules": {
-        "import/prefer-default-export": [0],
-        "no-restricted-syntax": [0],
-        "no-console": [0],
-        "no-alert": [0],
-        "class-methods-use-this": [0],
-        "react/jsx-filename-extension": [0],
-        "jsx-a11y/click-events-have-key-events": [0],
-        "jsx-a11y/no-static-element-interactions": [0]    }
+        "import/prefer-default-export": [
+            0
+        ],
+        "no-restricted-syntax": [
+            0
+        ],
+        "no-console": [
+            0
+        ],
+        "no-alert": [
+            0
+        ],
+        "class-methods-use-this": [
+            0
+        ],
+        "react/jsx-filename-extension": [
+            0
+        ],
+        "jsx-a11y/click-events-have-key-events": [
+            0
+        ],
+        "jsx-a11y/no-static-element-interactions": [
+            0
+        ]
+    }
 }

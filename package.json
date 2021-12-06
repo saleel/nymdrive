@@ -1,24 +1,84 @@
 {
-  "name": "nymDrive",
-  "version": "0.0.1",
-  "description": "An open-source, decentralized, E2E encrypted, privacy friendly alternative to Google Drive/Dropbox.",
-  "main": "main/index.js",
+  "name": "nym-drive",
+  "version": "0.1.0",
+  "description": "An open-source, decentralized, e2e encrypted, privacy-friendly alternative to Dropbox/Google Drive.",
+  "main": "electron/main.js",
+  "homepage": "./",
   "scripts": {
-    "start": "electron .",
-    "start-react": "(cd renderer && npm start)"
+    "start-react": "react-scripts start",
+    "build-react": "react-scripts build",
+    "dev": "concurrently -k \"BROWSER=none npm run start-react\" \"npm run electron\"",
+    "electron": "wait-on tcp:3000 && electron-forge start",
+    "package": "react-scripts build && electron-forge package",
+    "make": "react-scripts build && electron-forge make"
   },
   "dependencies": {
-    "electron": "^16.0.0",
     "lokijs": "^1.5.12",
+    "prop-types": "^15.7.2",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-scripts": "4.0.3",
     "ws": "^8.3.0"
   },
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.52",
+    "@electron-forge/maker-deb": "^6.0.0-beta.52",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.52",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.52",
+    "@electron-forge/maker-zip": "^6.0.0-beta.52",
+    "concurrently": "^6.4.0",
+    "electron": "^16.0.0",
     "electron-reloader": "^1.2.1",
     "eslint": "^7.11.0",
-    "eslint-config-airbnb": "^19.0.1",
+    "eslint-config-airbnb": "^19.0.2",
+    "eslint-config-react-app": "^6.0.0",
     "eslint-plugin-import": "^2.25.3",
     "eslint-plugin-jsx-a11y": "^6.5.1",
     "eslint-plugin-react": "^7.27.1",
-    "eslint-plugin-react-hooks": "^4.3.0"
+    "eslint-plugin-react-hooks": "^4.3.0",
+    "wait-on": "^6.0.0"
+  },
+  "config": {
+    "forge": {
+      "packagerConfig": {
+        "icon": "src/icons/mac/icon.icns",
+        "name": "Nym Drive",
+        "asar": true
+      },
+      "makers": [
+        {
+          "name": "@electron-forge/maker-squirrel",
+          "config": {
+            "name": "nym-drive"
+          }
+        },
+        {
+          "name": "@electron-forge/maker-zip",
+          "platforms": [
+            "darwin"
+          ]
+        },
+        {
+          "name": "@electron-forge/maker-deb",
+          "config": {}
+        },
+        {
+          "name": "@electron-forge/maker-rpm",
+          "config": {}
+        }
+      ]
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

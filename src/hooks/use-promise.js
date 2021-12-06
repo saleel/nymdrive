@@ -2,7 +2,6 @@
 
 import React from 'react';
 
-
 /**
  * @typedef UsePromiseOptions
  * @property [defaultValue] {any}
@@ -10,7 +9,6 @@ import React from 'react';
  * @property [conditions = []] {Array}
  * @property [refreshInterval] {number}
  */
-
 
 /**
  * @template T
@@ -20,16 +18,14 @@ import React from 'react';
  */
 function usePromise(promise, options = {}) {
   const {
-    defaultValue, dependencies = [], conditions = [], refreshInterval
+    defaultValue, dependencies = [], conditions = [], refreshInterval,
   } = options;
 
-  
   const [result, setResult] = React.useState(defaultValue);
   const [isFetching, setIsFetching] = React.useState(false);
   const [error, setError] = React.useState();
 
   let didCancel = false;
-
 
   async function fetch() {
     setIsFetching(true);
@@ -37,7 +33,7 @@ function usePromise(promise, options = {}) {
     try {
       const data = await promise();
       if (!didCancel) {
-          setResult(data);
+        setResult(data);
       }
     } catch (e) {
       if (!didCancel) {
@@ -52,7 +48,6 @@ function usePromise(promise, options = {}) {
 
     setIsFetching(false);
   }
-
 
   React.useEffect(() => {
     const allConditionsValid = conditions.every((condition) => {
@@ -71,7 +66,7 @@ function usePromise(promise, options = {}) {
 
     // eslint-disable-next-line consistent-return
     return () => {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line
       didCancel = true;
       clearInterval(interval);
     };
@@ -85,6 +80,5 @@ function usePromise(promise, options = {}) {
     isFetching, error, reFetch,
   }];
 }
-
 
 export default usePromise;

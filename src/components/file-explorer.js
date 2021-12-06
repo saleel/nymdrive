@@ -1,11 +1,12 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   GlobalPaths, GlobalPathsDisplay, Icons, Statuses,
 } from '../constants';
 import usePromise from '../hooks/use-promise';
 
-const FileExplorer = function FileExplorer(props) {
-  const [currentPath, setCurrentPath] = React.useState(props.path);
+const FileExplorer = function FileExplorer({ path: initialPath }) {
+  const [currentPath, setCurrentPath] = React.useState(initialPath);
   const [selectedFile, setSelectedFile] = React.useState();
 
   const [files, { reFetch: reFetchFiles }] = usePromise(
@@ -119,7 +120,7 @@ const FileExplorer = function FileExplorer(props) {
 
           <div className="pane pane-sm sidebar">
             <nav className="nav-group">
-              <h5 className="nav-group-title">nymDrive</h5>
+              <h5 className="nav-group-title">Nym Drive</h5>
               {Object.keys(GlobalPaths).map((path) => (
                 <span
                   key={path}
@@ -178,7 +179,12 @@ const FileExplorer = function FileExplorer(props) {
   );
 };
 
+FileExplorer.propTypes = {
+  path: PropTypes.string,
+};
+
 FileExplorer.defaultProps = {
   path: '/',
 };
+
 export default FileExplorer;
