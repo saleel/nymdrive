@@ -1,0 +1,23 @@
+{
+  "type": "module",
+  "name": "server",
+  "description": "Produces layer-encrypted Sphinx packets for use with Nym mixnets.",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@textile/hub": "^6.3.1",
+    "dotenv": "^10.0.0",
+    "ws": "^8.2.3"
+  },
+  "devDependencies": {
+    "eslint": "^8.3.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.3"
+  }
+}
