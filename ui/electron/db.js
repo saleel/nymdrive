@@ -48,7 +48,18 @@ class DB extends EventEmitter {
 
     console.debug('App Data Path: ', this.appDataPath);
 
-    this.db = new Loki(`${this.appDataPath}/nymdrive.db`, {
+    /** @type {import("./nym-client")} */
+    this.nymClient = new NymClient({
+      onConnect: this.onConnect, // Upload all pending files
+      onReceive: this.onReceive,
+      onDisconnect: this.onDisconnect,
+    });
+  }
+
+  async onConnect(address) {
+    this.emit('client-connected');
+
+    this.db = new Loki(`${this.appDataPath}/nymdrive-${address}.db`, {
       adapter: new FileAdapter(),
       autoload: true,
       autosave: true,
@@ -64,17 +75,6 @@ class DB extends EventEmitter {
         this.clearCache();
       },
     });
-
-    /** @type {import("./nym-client")} */
-    this.nymClient = new NymClient({
-      onConnect: this.onConnect, // Upload all pending files
-      onReceive: this.onReceive,
-      onDisconnect: this.onDisconnect,
-    });
-  }
-
-  async onConnect() {
-    this.emit('client-connected');
 
     await this.processPendingFiles();
   }
@@ -92,6 +92,8 @@ class DB extends EventEmitter {
   }
 
   async onReceive(data) {
+    console.log('Received', data.name);
+
     if (this.filesCollection.find({
       path: 'SharedWithMe',
       name: data.name,
@@ -109,7 +111,7 @@ class DB extends EventEmitter {
       status: Statuses.STORED,
       createdAt: new Date(),
       updatedAt: new Date(),
-    }, false);
+    });
   }
 
   async waitTillReady() {
@@ -134,6 +136,8 @@ class DB extends EventEmitter {
       ...path && { path: { $eq: path } },
       ...status && { status: { $eq: status } },
     });
+
+    console.log(path, results)
 
     return results;
   }
@@ -356,13 +360,15 @@ class DB extends EventEmitter {
           size: file.size,
           type: file.type,
         }, recipient);
+
+        return `File shared with ${recipient}`;
       } catch (error) {
         console.error(error);
         return error.message;
       }
     }
 
-    return false;
+    return 'File not found';
   }
 
   async setFolderFavorite(id) {

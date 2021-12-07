@@ -19,11 +19,6 @@ class NymClient {
     this.ws.on('open', () => {
       console.log('Socket connected');
       this.ws.send(JSON.stringify({ type: 'selfAddress' }));
-
-      if (!this.isConnected) {
-        this.onConnect();
-        this.isConnected = true;
-      }
     });
 
     this.ws.on('close', (e) => {
@@ -66,6 +61,11 @@ class NymClient {
       const selfAdd = message.address;
       this.myNymAddress = selfAdd;
       console.log(`nymAddress: ${selfAdd}`);
+
+      if (!this.isConnected) {
+        this.onConnect(selfAdd);
+        this.isConnected = true;
+      }
     } else {
       try {
         const data = message.action ? message : JSON.parse(message.message);
