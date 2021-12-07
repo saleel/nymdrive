@@ -1,5 +1,6 @@
 import React from 'react';
-import './App.css';
+import './photon.css';
+import './main.css';
 import FileExplorer from './components/file-explorer';
 
 const App = function App() {
