@@ -22,7 +22,7 @@ async function buildContext() {
 
   const buckets = await Buckets.withKeyInfo(keyInfo);
 
-  const result = await buckets.open('hackatom.nym');
+  const result = await buckets.open('nymdrive');
   if (!result.root) {
     throw new Error('Failed to open bucket');
   }

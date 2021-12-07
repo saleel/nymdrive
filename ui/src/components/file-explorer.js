@@ -150,8 +150,6 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
     return isFileSelected() && selectedFile.status !== Statuses.PENDING;
   }
 
-  console.log(currentPath)
-
   return (
     <div className="window">
 
