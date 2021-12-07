@@ -1,5 +1,5 @@
 const NYM_SERVER_ADDRESS = 'ECgMYfLgvm6Z57RgCqytEyuYPBwkWyL3CPHC9DDSCiBU.DnuvLQpCLmLzjTeLMBmzYFLbRDAaafrN2LxVvNYeBn5V@EQhjPpUuy4i1u87nfQMW21WiBT5mJk4dcq4ju7Vct7cB';
-const NYM_CLIENT_URL = 'ws://localhost:1234';
+const NYM_CLIENT_URL = 'ws://localhost:1977';
 
 module.exports = {
   NYM_SERVER_ADDRESS,

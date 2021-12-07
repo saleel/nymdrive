@@ -13,7 +13,7 @@ const handlers = {
 /** @type {WebSocket} */
 let ws;
 function connect(context) {
-  ws = new WebSocket('ws://localhost:1977');
+  ws = new WebSocket(process.env.NYM_CLIENT_URL);
 
   ws.on('open', () => {
     console.log('Socket connected');
