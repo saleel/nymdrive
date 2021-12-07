@@ -80,6 +80,7 @@ class DB extends EventEmitter {
   }
 
   async onDisconnect() {
+    this.isReady = false;
     this.emit('client-disconnected');
   }
 
@@ -94,10 +95,14 @@ class DB extends EventEmitter {
   async onReceive(data) {
     console.log('Received', data.name);
 
-    if (this.filesCollection.find({
+    await this.waitTillReady();
+
+    const existing = this.filesCollection.find({
       path: 'SharedWithMe',
       name: data.name,
-    })) {
+    })[0];
+
+    if (existing) {
       return false;
     }
 
@@ -136,8 +141,6 @@ class DB extends EventEmitter {
       ...path && { path: { $eq: path } },
       ...status && { status: { $eq: status } },
     });
-
-    console.log(path, results)
 
     return results;
   }
