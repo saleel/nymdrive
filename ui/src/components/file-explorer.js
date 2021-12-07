@@ -126,6 +126,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
     }
 
     if (window.electron?.startDrag) {
+      e.preventDefault();
       await window.electron.startDrag(file);
     }
   }
@@ -148,6 +149,8 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
   function isStoredFileSelected() {
     return isFileSelected() && selectedFile.status !== Statuses.PENDING;
   }
+
+  console.log(currentPath)
 
   return (
     <div className="window">
@@ -267,8 +270,8 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
               {favoriteFolders.map((folder) => (
                 <span
                   key={folder.path + folder.name}
-                  className={`nav-group-item p-1 ${`${folder.path}/${folder.name}` === currentPath ? 'active' : ''}`}
-                  onClick={() => { setCurrentPath(`${folder.path}/${folder.name}`); }}
+                  className={`nav-group-item p-1 ${`${folder.path}${folder.name}/` === currentPath ? 'active' : ''}`}
+                  onClick={() => { setCurrentPath(`${folder.path}${folder.name}/`); }}
                 >
                   {folder.name}
                 </span>

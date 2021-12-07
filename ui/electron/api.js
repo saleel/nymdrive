@@ -242,6 +242,10 @@ class DB extends EventEmitter {
       throw new Error(`No file found with hash ${hash}`);
     }
 
+    if (file.temporaryLocalPath) {
+      return file.temporaryLocalPath;
+    }
+
     await this.updateFile(hash, {
       isFetching: true,
     });
@@ -276,10 +280,7 @@ class DB extends EventEmitter {
       return;
     }
 
-    let destinationPath = file.temporaryLocalPath;
-    if (destinationPath) {
-      destinationPath = await this.fetchFile(hash);
-    }
+    const destinationPath = await this.fetchFile(hash);
 
     shell.openPath(destinationPath);
   }
@@ -296,8 +297,6 @@ class DB extends EventEmitter {
     } catch (error) {
       console.error(error);
     }
-
-    this.filesCollection.remove(file);
   }
 
   async deleteFile(hash) {
