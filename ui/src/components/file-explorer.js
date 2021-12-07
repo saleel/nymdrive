@@ -5,10 +5,19 @@ import {
   GlobalPaths, GlobalPathsDisplay, Icons, Statuses,
 } from '../constants';
 import usePromise from '../hooks/use-promise';
-import usePrompt from './use-prompt';
+import usePrompt from '../hooks/use-prompt';
+import useHistory from '../hooks/use-history';
 
 const FileExplorer = function FileExplorer({ path: initialPath }) {
-  const [currentPath, setCurrentPath] = React.useState(initialPath);
+  const {
+    state: currentPath,
+    set: setCurrentPath,
+    undo: goBack,
+    redo: goForward,
+    canUndo: canGoBack,
+    canRedo: canGoForward,
+  } = useHistory(initialPath);
+
   const [selectedFile, setSelectedFile] = React.useState();
 
   const prompt = usePrompt();
@@ -83,7 +92,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
 
   async function onFileDoubleClick(file) {
     if (file.type === 'FOLDER') {
-      setCurrentPath(`${currentPath}/${file.name}`);
+      setCurrentPath(`${currentPath}${file.name}/`);
     }
 
     await window.API.openFile(file.hash);
@@ -150,12 +159,16 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
             <button
               type="button"
               className="btn"
+              disabled={!canGoBack}
+              onClick={() => { goBack(); }}
             >
               <span className="icon icon-left" />
             </button>
             <button
               type="button"
               className="btn"
+              disabled={!canGoForward}
+              onClick={() => { goForward(); }}
             >
               <span className="icon icon-right" />
             </button>
