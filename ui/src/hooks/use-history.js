@@ -12,7 +12,6 @@ const initialState = {
 // Our reducer function to handle state changes based on action
 const reducer = (state, action) => {
   const { past, present, future } = state;
-  console.log(state)
   switch (action.type) {
     case 'UNDO': {
       const previous = past[past.length - 1];

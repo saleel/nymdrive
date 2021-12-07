@@ -284,6 +284,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
                 height={50}
                 width={50}
               />
+              <div>Ensure NYM client is running locally</div>
             </div>
           ) : (
             <div
