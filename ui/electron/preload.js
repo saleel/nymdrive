@@ -1,8 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const DB = require('./db');
+const DB = require('./api');
 
 const db = new DB();
-contextBridge.exposeInMainWorld('DB', {
+contextBridge.exposeInMainWorld('API', {
   createFile: db.createFile,
   findFiles: db.findFiles,
   createFolder: db.createFolder,

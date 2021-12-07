@@ -14,18 +14,18 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
   const prompt = usePrompt();
 
   const [files, { isFetching, reFetch: reFetchFiles }] = usePromise(
-    () => window.DB.findFiles({ path: currentPath }),
+    () => window.API.findFiles({ path: currentPath }),
     { defaultValue: [], dependencies: [currentPath], refreshInterval: 1000 },
   );
 
   const [favoriteFolders, { reFetch: reFetchFavoriteFolders }] = usePromise(
-    () => window.DB.getFavoriteFolders(),
+    () => window.API.getFavoriteFolders(),
     { defaultValue: [] },
   );
 
   async function onFavoriteDrop(e) {
     const id = e.dataTransfer.getData('fileId');
-    await window.DB.setFolderFavorite(id);
+    await window.API.setFolderFavorite(id);
     await reFetchFavoriteFolders();
   }
 
@@ -43,7 +43,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
     }
 
     for (const f of droppedFiles) {
-      window.DB.createFile({
+      window.API.createFile({
         name: f.name,
         systemPath: f.path,
         path: currentPath,
@@ -68,7 +68,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
         return;
       }
 
-      await window.DB.createFolder({
+      await window.API.createFolder({
         name: folderName,
         path: currentPath,
       });
@@ -86,27 +86,27 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
       setCurrentPath(`${currentPath}/${file.name}`);
     }
 
-    await window.DB.openFile(file.hash);
+    await window.API.openFile(file.hash);
   }
 
   async function onDownloadClick() {
-    await window.DB.fetchFile(selectedFile.hash);
+    await window.API.fetchFile(selectedFile.hash);
   }
 
   async function onClearCacheClick() {
-    await window.DB.clearCache();
+    await window.API.clearCache();
     alert('All temporary files have been deleted');
   }
 
   async function onDeleteLocalClick() {
     if (window.confirm(`Are you sure you want to delete the local copy ${selectedFile.systemPath}?`)) {
-      await window.DB.deleteFileLocally(selectedFile.hash);
+      await window.API.deleteFileLocally(selectedFile.hash);
     }
   }
 
   async function onDeleteClick() {
     if (window.confirm('Are you sure you want to delete the file stored in the cloud?')) {
-      await window.DB.deleteFile(selectedFile.hash);
+      await window.API.deleteFile(selectedFile.hash);
     }
   }
 
@@ -127,7 +127,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
       description: 'Enter the nym client address of the person you want to share this file with',
     });
 
-    const message = await window.DB.shareFile(selectedFile.hash, clientAddress);
+    const message = await window.API.shareFile(selectedFile.hash, clientAddress);
 
     window.alert(message || 'File shared successfully');
   }
