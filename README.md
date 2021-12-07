@@ -14,6 +14,9 @@ This repo contain code for both client app (written in Electron) and service-pro
 - service-provider can be found in `/service-provider`
 
 
+### [Download Client v0.1.0](https://github.com/saleel/nymdrive/releases/download/0.1.0/NymDrive-mac.zip)
+
+
 ## TODO
 - Add file logger instead on console logs
 - Use nym web-assembly client for UI when ready
