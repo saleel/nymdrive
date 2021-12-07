@@ -18,12 +18,13 @@ This repo contain code for both client app (written in Electron) and service-pro
 
 ## Running
 
-- Download NymDrive Client - [NymDrive v0.1.0](https://github.com/saleel/nymdrive/releases/download/0.1.1/NymDrive-mac.zip)
+- Download NymDrive Client - [NymDrive v0.1.1](https://github.com/saleel/nymdrive/releases/download/0.1.1/NymDrive-mac.zip)
 - Run Nym web-socket client in your machine like `./nym-client run --id saleel`
 - Open the NymDrive app. It should connect to your local Nym client and bring up the application.
 - Note: The service provider app will be hosted in a cloud provider. It may not work all the time due to connection timeout from the Nym client running in the server.
 - The address of the service provider is hardcoded in the client. The hosted server app will be listening to that address.
 - You can also chose to run your own service provider app. You will need to provide [Textile Buckets](https://docs.textile.io/buckets/) API keys as env variables.
+- You will also need to edit the server app Nym address in `ui/electron/config.js`
 
 ## Running Locally / Development Mode
 
@@ -42,7 +43,7 @@ To run the client app in dev mode, go to `/ui` and run both the commands below:
 - UI to match Windows/Linux
 
 
-[Presentation](https://docs.google.com/presentation/d/1MpvIK32Mx9VKLVfMTcvbeyrsKHHUsTvDQ-3n31dR0NE/edit?usp=sharing)
+[Presentation](https://docs.google.com/presentation/d/1MpvIK32Mx9VKLVfMTcvbeyrsKHHUsTvDQ-3n31dR0NE/)
 
-[Demo Video]()
+[Demo Video](https://youtu.be/oSLlbUhLkH0)
 
