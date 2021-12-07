@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Loader from 'react-loader-spinner';
 import {
   GlobalPaths, GlobalPathsDisplay, Icons, Statuses,
 } from '../constants';
@@ -12,7 +13,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
 
   const prompt = usePrompt();
 
-  const [files, { reFetch: reFetchFiles }] = usePromise(
+  const [files, { isFetching, reFetch: reFetchFiles }] = usePromise(
     () => window.DB.findFiles({ path: currentPath }),
     { defaultValue: [], dependencies: [currentPath], refreshInterval: 1000 },
   );
@@ -262,49 +263,60 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
             </nav>
           </div>
 
-          <div
-            className="pane"
-            onDragEnter={(e) => { e.preventDefault(); }}
-            onDragOver={(e) => { e.preventDefault(); }}
-            onDrop={onFileDrop}
-          >
-            <table className="table-striped">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Type</th>
-                  <th>Date Modified</th>
-                  <th>Hash</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {files.map((file) => (
-                  <tr
-                    key={file.id || file.name}
-                    draggable={(file.temporaryLocalPath || file.type === 'FOLDER') ? 'true' : 'false'}
-                    onClick={() => { onFileClick(file); }}
-                    onDoubleClick={() => { onFileDoubleClick(file); }}
-                    className={selectedFile?.name === file.name ? 'active' : ''}
-                    onDragStart={(e) => { onFileDrag(e, file); }}
-                  >
-                    <td>
-                      <span className={`icon icon-${Icons[file.type] || Icons.file} mr-2`} />
-                      {file.name}
-                    </td>
-                    <td>{file.type === 'FOLDER' ? '' : file.type}</td>
-                    <td>{file.updatedAt ? new Date(file.updatedAt).toISOString() : ''}</td>
-                    <td>{file.hash}</td>
-                    <td style={{ width: '90px' }}>
-                      {file.status}
-                      {file.isFetching && (<span title="Fetching" className="blinking-dot" />)}
-                      {!file.isFetching && file.temporaryLocalPath && (<span title="Available locally" className="green-dot" />)}
-                    </td>
+          {isFetching ? (
+            <div className="loader">
+              <Loader
+                type="Oval"
+                color="#000"
+                height={50}
+                width={50}
+              />
+            </div>
+          ) : (
+            <div
+              className="pane"
+              onDragEnter={(e) => { e.preventDefault(); }}
+              onDragOver={(e) => { e.preventDefault(); }}
+              onDrop={onFileDrop}
+            >
+              <table className="table-striped">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Date Modified</th>
+                    <th>Hash</th>
+                    <th>Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {files.map((file) => (
+                    <tr
+                      key={file.id || file.name}
+                      draggable={(file.temporaryLocalPath || file.type === 'FOLDER') ? 'true' : 'false'}
+                      onClick={() => { onFileClick(file); }}
+                      onDoubleClick={() => { onFileDoubleClick(file); }}
+                      className={selectedFile?.name === file.name ? 'active' : ''}
+                      onDragStart={(e) => { onFileDrag(e, file); }}
+                    >
+                      <td>
+                        <span className={`icon icon-${Icons[file.type] || Icons.file} mr-2`} />
+                        {file.name}
+                      </td>
+                      <td>{file.type === 'FOLDER' ? '' : file.type}</td>
+                      <td>{file.updatedAt ? new Date(file.updatedAt).toISOString() : ''}</td>
+                      <td>{file.hash}</td>
+                      <td style={{ width: '90px' }}>
+                        {file.status}
+                        {file.isFetching && (<span title="Fetching" className="blinking-dot" />)}
+                        {!file.isFetching && file.temporaryLocalPath && (<span title="Available locally" className="green-dot" />)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
 
         </div>
       </div>
