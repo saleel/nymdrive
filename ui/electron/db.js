@@ -160,10 +160,15 @@ class DB extends EventEmitter {
     // Encrypt file
     const key = crypto.randomBytes(32); // Each file encrypted with a new key
 
-    const encryptedFileString = await encryptFile(file.systemPath, key);
-    const hash = await hashFile(encryptedFileString);
+    let fileStringToUpload;
+    if (file.path === 'Public') {
+      fileStringToUpload = fs.readFileSync(file.systemPath).toString('base64');
+    } else {
+      fileStringToUpload = await encryptFile(file.systemPath, key);
+      console.log(`Encrypted ${file.name}`);
+    }
 
-    console.log(`Encrypted ${file.name}`);
+    const hash = await hashFile(fileStringToUpload);
 
     await this.updateFile(file.id, {
       id: hash, // Set new ID
@@ -174,7 +179,7 @@ class DB extends EventEmitter {
     // Upload to NYM and wait for response
     const response = await this.nymClient.sendData({
       action: 'STORE',
-      content: encryptedFileString,
+      content: fileStringToUpload,
       hash,
     });
 
