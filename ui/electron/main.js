@@ -1,7 +1,7 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, Menu, Tray } = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
-require('./event-handlers');
+const registerHandlers = require('./event-handlers');
 
 // try {
 // require('electron-reloader')(module, { ignore: '*.db' });
@@ -10,6 +10,10 @@ require('./event-handlers');
 const ui = isDev ? 'http://localhost:3000' : `file://${path.join(__dirname, '../build/index.html')}`;
 
 function createWindow() {
+  if (BrowserWindow.getAllWindows().length > 0) {
+    return;
+  }
+
   const mainWindow = new BrowserWindow({
     width: 1000,
     height: 800,
@@ -23,14 +27,39 @@ function createWindow() {
   mainWindow.loadURL(ui);
 }
 
+let tray = null
 app.whenReady().then(() => {
+  tray = new Tray(path.join(__dirname, '../icons/png/20x20.png'));
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Open NymDrive',
+       type: 'normal',
+      click: () => {
+        createWindow();
+      }
+    },
+    {
+      label: 'Quit', 
+      type: 'normal',
+      click: () => {
+        app.quit();
+      }
+    },
+  ])
+  tray.setContextMenu(contextMenu)
+
+  tray.on('double-click', () => {
+    createWindow();
+  });
+
   createWindow();
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
+  registerHandlers({ tray });
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
+  // Do nothing
 });
+
+app.dock.hide();

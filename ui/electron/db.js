@@ -4,6 +4,7 @@ const fs = require('fs');
 const FileAdapter = require('lokijs/src/loki-fs-sync-adapter');
 const crypto = require('crypto');
 const pathLib = require('path');
+const EventEmitter = require('events');
 const { hashFile, encryptFile, decryptFile } = require('./utils');
 const NymClient = require('./nym-client');
 
@@ -15,12 +16,14 @@ const Statuses = {
   FETCHING: 'FETCHING',
 };
 
-class DB {
+class DB extends EventEmitter {
   /**
    *
    * @param {{ app: import("electron").App} } args
    */
   constructor() {
+    super();
+
     this.createFolder = this.createFolder.bind(this);
     this.createFile = this.createFile.bind(this);
     this.findFiles = this.findFiles.bind(this);
@@ -31,10 +34,13 @@ class DB {
     this.deleteFile = this.deleteFile.bind(this);
     this.shareFile = this.shareFile.bind(this);
     this.onReceive = this.onReceive.bind(this);
+    this.onConnect = this.onConnect.bind(this);
+    this.onDisconnect = this.onDisconnect.bind(this);
 
     this.isReady = false;
 
-    this.appDataPath = __dirname; // TODO: Change to app.getPath (not working with contextIsolation)
+    const appDataDir = process.env.APPDATA || (process.platform === 'darwin' ? `${process.env.HOME}/Library/Application Support/` : `${process.env.HOME}/.local/share`);
+    this.appDataPath = `${appDataDir}nym-drive`; // TODO: Change to app.getPath (not working with contextIsolation)
 
     console.debug('App Data Path: ', this.appDataPath);
 
@@ -51,28 +57,37 @@ class DB {
         this.isReady = true;
 
         // Delete any temporarily downloaded files in the previous session
-        this.deleteLocalFiles();
+        this.clearCache();
       },
     });
 
     /** @type {import("./nym-client")} */
     this.nymClient = new NymClient({
-      onConnect: this.processPendingFiles, // Upload all pending files
+      onConnect: this.onConnect, // Upload all pending files
       onReceive: this.onReceive,
+      onDisconnect: this.onDisconnect,
     });
+  }
+
+  async onConnect() {
+    this.emit('client-connected');
+
+    await this.processPendingFiles();
+  }
+
+  async onDisconnect() {
+    this.emit('client-disconnected');
   }
 
   async processPendingFiles() {
     // Upload pending files
-    this.findFiles({ status: Statuses.PENDING })
+    await this.findFiles({ status: Statuses.PENDING })
       .then((files) => (files || [])
         .filter((f) => f.path !== 'SharedWithMe' && f.type !== 'FOLDER')
         .forEach((f) => this.encryptAndStore(f)));
   }
 
   async onReceive(data) {
-    console.log('Received', data.name);
-
     if (this.filesCollection.find({
       path: 'SharedWithMe',
       name: data.name,
@@ -267,7 +282,7 @@ class DB {
   }
 
   // Delete file downloaded for opening
-  deleteLocalFiles() {
+  clearCache() {
     const files = this.filesCollection.find();
 
     for (const file of files) {
@@ -283,6 +298,11 @@ class DB {
         });
       }
     }
+
+    // Mark all FETCHING as STORED
+    this.findFiles({ status: Statuses.FETCHING })
+      .then((files) => (files || [])
+        .forEach((f) => this.updateFile(f.hash, { status: Statuses.STORED })));
   }
 
   async shareFile(hash, recipient) {

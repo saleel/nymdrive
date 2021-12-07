@@ -19,3 +19,13 @@ contextBridge.exposeInMainWorld('electron', {
     }
   },
 });
+
+
+db.on('client-connected', () => {
+  ipcRenderer.send('client-connected');
+})
+
+db.on('client-disconnected', () => {
+  ipcRenderer.send('client-disconnected');
+})
+

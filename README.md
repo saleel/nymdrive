@@ -16,5 +16,5 @@ This repo contain code for both client app (written in Electron) and service-pro
 
 ## TODO
 - Add logger
-- Encrypt local DB
-- UI to match windows
+- Use nym web assembly client for UI when ready
+- UI to match Windows/Linux

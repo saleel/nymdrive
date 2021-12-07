@@ -2,11 +2,14 @@ const WebSocket = require('ws');
 const { NYM_CLIENT_URL, NYM_SERVER_ADDRESS } = require('./config');
 
 class NymClient {
-  constructor({ onConnect, onReceive }) {
+  constructor({ onConnect, onDisconnect, onReceive }) {
     this.actionWaiters = {};
     this.connect();
     this.onConnect = onConnect;
+    this.onDisconnect = onDisconnect;
     this.onReceive = onReceive; // When SHARE action is received
+
+    this.isConnected = false;
   }
 
   connect() {
@@ -16,11 +19,21 @@ class NymClient {
     this.ws.on('open', () => {
       console.log('Socket connected');
       this.ws.send(JSON.stringify({ type: 'selfAddress' }));
-      this.onConnect();
+
+      if (!this.isConnected) {
+        this.onConnect();
+        this.isConnected = true;
+      }
     });
 
     this.ws.on('close', (e) => {
       console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
+
+      if (this.isConnected) {
+        this.onDisconnect();
+        this.isConnected = false;
+      }
+
       setTimeout(() => {
         this.connect();
       }, 1000);
