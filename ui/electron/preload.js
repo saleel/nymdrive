@@ -19,8 +19,8 @@ contextBridge.exposeInMainWorld('DB', {
 
 contextBridge.exposeInMainWorld('electron', {
   startDrag: async (file) => {
-    if (file.type !== 'FOLDER' && file.localPath) {
-      ipcRenderer.send('ondragstart', file.localPath);
+    if (file.type !== 'FOLDER' && file.temporaryLocalPath) {
+      ipcRenderer.send('ondragstart', file.temporaryLocalPath);
     }
   },
 });

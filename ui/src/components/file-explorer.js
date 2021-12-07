@@ -282,7 +282,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
                 {files.map((file) => (
                   <tr
                     key={file.id || file.name}
-                    draggable={(file.localPath || file.type === 'FOLDER') ? 'true' : 'false'}
+                    draggable={(file.temporaryLocalPath || file.type === 'FOLDER') ? 'true' : 'false'}
                     onClick={() => { onFileClick(file); }}
                     onDoubleClick={() => { onFileDoubleClick(file); }}
                     className={selectedFile?.name === file.name ? 'active' : ''}
@@ -298,7 +298,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
                     <td style={{ width: '90px' }}>
                       {file.status}
                       {file.isFetching && (<span title="Fetching" className="blinking-dot" />)}
-                      {!file.isFetching && file.localPath && (<span title="Available locally" className="green-dot" />)}
+                      {!file.isFetching && file.temporaryLocalPath && (<span title="Available locally" className="green-dot" />)}
                     </td>
                   </tr>
                 ))}

@@ -254,14 +254,26 @@ class DB extends EventEmitter {
 
     await this.updateFile(hash, {
       isFetching: false,
-      localPath: destinationPath,
+      temporaryLocalPath: destinationPath,
     });
 
     return destinationPath;
   }
 
   async openFile(hash) {
-    const destinationPath = await this.fetchFile(hash);
+    const file = this.filesCollection.find({
+      hash,
+    })[0];
+
+    if (!file) {
+      return;
+    }
+
+    let destinationPath = file.temporaryLocalPath;
+    if (destinationPath) {
+      destinationPath = await this.fetchFile(hash);
+    }
+
     shell.openPath(destinationPath);
   }
 
@@ -307,15 +319,15 @@ class DB extends EventEmitter {
     const allFiles = this.filesCollection.find();
 
     for (const file of allFiles) {
-      if (file.status === Statuses.STORED && file.localPath) {
+      if (file.status === Statuses.STORED && file.temporaryLocalPath) {
         try {
-          fs.unlinkSync(file.localPath);
+          fs.unlinkSync(file.temporaryLocalPath);
         } catch (e) {
           console.error(e);
         }
 
         this.updateFile(file.hash, {
-          localPath: null,
+          temporaryLocalPath: null,
         });
       }
     }
