@@ -1,4 +1,6 @@
-const { app, BrowserWindow, Menu, Tray } = require('electron');
+const {
+  app, BrowserWindow, Menu, Tray,
+} = require('electron');
 const path = require('path');
 const isDev = require('electron-is-dev');
 const registerHandlers = require('./event-handlers');
@@ -27,27 +29,27 @@ function createWindow() {
   mainWindow.loadURL(ui);
 }
 
-let tray = null
+let tray = null;
 app.whenReady().then(() => {
   tray = new Tray(path.join(__dirname, '../icons/png/20x20.png'));
 
   const contextMenu = Menu.buildFromTemplate([
     {
       label: 'Open NymDrive',
-       type: 'normal',
+      type: 'normal',
       click: () => {
         createWindow();
-      }
+      },
     },
     {
-      label: 'Quit', 
+      label: 'Quit',
       type: 'normal',
       click: () => {
         app.quit();
-      }
+      },
     },
-  ])
-  tray.setContextMenu(contextMenu)
+  ]);
+  tray.setContextMenu(contextMenu);
 
   tray.on('double-click', () => {
     createWindow();

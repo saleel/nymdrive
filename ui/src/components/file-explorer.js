@@ -17,7 +17,18 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
     { defaultValue: [], dependencies: [currentPath], refreshInterval: 1000 },
   );
 
-  async function onDrop(e) {
+  const [favoriteFolders, { reFetch: reFetchFavoriteFolders }] = usePromise(
+    () => window.DB.getFavoriteFolders(),
+    { defaultValue: [] },
+  );
+
+  async function onFavoriteDrop(e) {
+    const id = e.dataTransfer.getData('fileId');
+    await window.DB.setFolderFavorite(id);
+    await reFetchFavoriteFolders();
+  }
+
+  async function onFileDrop(e) {
     if (currentPath === GlobalPaths.SharedWithMe) {
       return;
     }
@@ -98,7 +109,12 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
     }
   }
 
-  async function onFileDrag(file) {
+  async function onFileDrag(e, file) {
+    if (file.type === 'FOLDER') {
+      e.dataTransfer.setData('fileId', file.id);
+      return;
+    }
+
     if (window.electron?.startDrag) {
       await window.electron.startDrag(file);
     }
@@ -127,10 +143,25 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
     <div className="window">
 
       <div className="toolbar">
-        <div className="toolbar-actions pull-right">
+
+        <div className="toolbar-actions">
+          <div className="btn-group">
+            <button
+              type="button"
+              className="btn"
+            >
+              <span className="icon icon-left" />
+            </button>
+            <button
+              type="button"
+              className="btn"
+            >
+              <span className="icon icon-right" />
+            </button>
+          </div>
 
           {isStoredFileSelected() && (
-            <div className="btn-group">
+            <div className="btn-group pull-right">
               <button
                 type="button"
                 className="btn"
@@ -163,7 +194,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
           {isFileSelected() && (
             <button
               type="button"
-              className="btn"
+              className="btn pull-right"
               onClick={onShare}
               title="Share"
             >
@@ -173,7 +204,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
 
           <button
             type="button"
-            className="btn"
+            className="btn pull-right"
             onClick={onCreateFolderClick}
             title="New Folder"
           >
@@ -182,9 +213,9 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
 
           <button
             type="button"
-            className="btn"
+            className="btn pull-right"
             onClick={onClearCacheClick}
-            title="New Folder"
+            title="Clear cache"
           >
             <span className="icon icon-block" />
           </button>
@@ -210,13 +241,32 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
               ))}
 
             </nav>
+
+            <nav
+              className="nav-group"
+              onDragEnter={(e) => { e.preventDefault(); }}
+              onDragOver={(e) => { e.preventDefault(); }}
+              onDrop={onFavoriteDrop}
+              style={{ minHeight: '150px' }}
+            >
+              <h5 className="nav-group-title">Favorites</h5>
+              {favoriteFolders.map((folder) => (
+                <span
+                  key={folder.path + folder.name}
+                  className={`nav-group-item p-1 ${`${folder.path}/${folder.name}` === currentPath ? 'active' : ''}`}
+                  onClick={() => { setCurrentPath(`${folder.path}/${folder.name}`); }}
+                >
+                  {folder.name}
+                </span>
+              ))}
+            </nav>
           </div>
 
           <div
             className="pane"
             onDragEnter={(e) => { e.preventDefault(); }}
             onDragOver={(e) => { e.preventDefault(); }}
-            onDrop={onDrop}
+            onDrop={onFileDrop}
           >
             <table className="table-striped">
               <thead>
@@ -232,11 +282,11 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
                 {files.map((file) => (
                   <tr
                     key={file.id || file.name}
-                    draggable={file.localPath ? 'true' : 'false'}
+                    draggable={(file.localPath || file.type === 'FOLDER') ? 'true' : 'false'}
                     onClick={() => { onFileClick(file); }}
                     onDoubleClick={() => { onFileDoubleClick(file); }}
                     className={selectedFile?.name === file.name ? 'active' : ''}
-                    onDragStart={(e) => { e.preventDefault(); onFileDrag(file); }}
+                    onDragStart={(e) => { onFileDrag(e, file); }}
                   >
                     <td>
                       <span className={`icon icon-${Icons[file.type] || Icons.file} mr-2`} />

@@ -37,6 +37,9 @@ class DB extends EventEmitter {
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
     this.clearCache = this.clearCache.bind(this);
+    this.getFavoriteFolders = this.getFavoriteFolders.bind(this);
+    this.setFolderFavorite = this.setFolderFavorite.bind(this);
+    this.removeFolderFavorite = this.removeFolderFavorite.bind(this);
 
     this.isReady = false;
 
@@ -199,6 +202,7 @@ class DB extends EventEmitter {
     await this.waitTillReady();
 
     this.filesCollection.insert({
+      id: Math.random().toString(16).slice(2),
       name,
       path,
       type: 'FOLDER',
@@ -221,6 +225,8 @@ class DB extends EventEmitter {
   }
 
   async fetchFile(hash) {
+    await this.waitTillReady();
+
     const file = this.filesCollection.find({
       hash,
     })[0];
@@ -260,6 +266,8 @@ class DB extends EventEmitter {
   }
 
   async deleteFileLocally(hash) {
+    await this.waitTillReady();
+
     const file = this.filesCollection.find({
       hash,
     })[0];
@@ -274,6 +282,8 @@ class DB extends EventEmitter {
   }
 
   async deleteFile(hash) {
+    await this.waitTillReady();
+
     const file = this.filesCollection.find({
       hash,
     })[0];
@@ -291,7 +301,9 @@ class DB extends EventEmitter {
   }
 
   // Delete file downloaded for opening
-  clearCache() {
+  async clearCache() {
+    await this.waitTillReady();
+
     const allFiles = this.filesCollection.find();
 
     for (const file of allFiles) {
@@ -315,6 +327,8 @@ class DB extends EventEmitter {
   }
 
   async shareFile(hash, recipient) {
+    await this.waitTillReady();
+
     const file = this.filesCollection.find({
       hash,
     })[0];
@@ -337,6 +351,41 @@ class DB extends EventEmitter {
     }
 
     return false;
+  }
+
+  async setFolderFavorite(id) {
+    await this.waitTillReady();
+
+    const folder = this.filesCollection.find({
+      type: 'FOLDER',
+      id,
+    })[0];
+
+    if (folder) {
+      this.updateFile(id, { isFavorite: true });
+    }
+  }
+
+  async removeFolderFavorite(hash) {
+    await this.waitTillReady();
+
+    const folder = this.filesCollection.find({
+      type: 'FOLDER',
+      hash,
+    })[0];
+
+    if (folder) {
+      this.updateFile(hash, { isFavorite: true });
+    }
+  }
+
+  async getFavoriteFolders() {
+    await this.waitTillReady();
+
+    return this.filesCollection.find({
+      type: 'FOLDER',
+      isFavorite: true,
+    });
   }
 }
 

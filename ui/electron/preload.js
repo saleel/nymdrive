@@ -12,11 +12,14 @@ contextBridge.exposeInMainWorld('DB', {
   shareFile: db.shareFile,
   openFile: db.openFile,
   clearCache: db.clearCache,
+  setFolderFavorite: db.setFolderFavorite,
+  removeFolderFavorite: db.removeFolderFavorite,
+  getFavoriteFolders: db.getFavoriteFolders,
 });
 
 contextBridge.exposeInMainWorld('electron', {
   startDrag: async (file) => {
-    if (file.localPath) {
+    if (file.type !== 'FOLDER' && file.localPath) {
       ipcRenderer.send('ondragstart', file.localPath);
     }
   },

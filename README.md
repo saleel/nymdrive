@@ -15,6 +15,7 @@ This repo contain code for both client app (written in Electron) and service-pro
 
 
 ## TODO
-- Add logger
-- Use nym web assembly client for UI when ready
+- Add file logger instead on console logs
+- Use nym web-assembly client for UI when ready
+- Option for publishing Public un-encrypted files to nym blockchain
 - UI to match Windows/Linux
