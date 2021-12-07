@@ -13,7 +13,6 @@ const COLLECTION_NAME = 'files';
 const Statuses = {
   PENDING: 'PENDING',
   STORED: 'STORED',
-  FETCHING: 'FETCHING',
 };
 
 class DB extends EventEmitter {
@@ -32,10 +31,12 @@ class DB extends EventEmitter {
     this.processPendingFiles = this.processPendingFiles.bind(this);
     this.deleteFileLocally = this.deleteFileLocally.bind(this);
     this.deleteFile = this.deleteFile.bind(this);
+    this.openFile = this.openFile.bind(this);
     this.shareFile = this.shareFile.bind(this);
     this.onReceive = this.onReceive.bind(this);
     this.onConnect = this.onConnect.bind(this);
     this.onDisconnect = this.onDisconnect.bind(this);
+    this.clearCache = this.clearCache.bind(this);
 
     this.isReady = false;
 
@@ -229,7 +230,7 @@ class DB extends EventEmitter {
     }
 
     await this.updateFile(hash, {
-      status: Statuses.FETCHING,
+      isFetching: true,
     });
 
     const response = await this.nymClient.sendData({
@@ -245,14 +246,17 @@ class DB extends EventEmitter {
 
     fs.writeFileSync(destinationPath, decrypted);
 
-    shell.openPath(destinationPath);
-
     await this.updateFile(hash, {
-      status: Statuses.STORED,
+      isFetching: false,
       localPath: destinationPath,
     });
 
     return destinationPath;
+  }
+
+  async openFile(hash) {
+    const destinationPath = await this.fetchFile(hash);
+    shell.openPath(destinationPath);
   }
 
   async deleteFileLocally(hash) {
@@ -288,9 +292,9 @@ class DB extends EventEmitter {
 
   // Delete file downloaded for opening
   clearCache() {
-    const files = this.filesCollection.find();
+    const allFiles = this.filesCollection.find();
 
-    for (const file of files) {
+    for (const file of allFiles) {
       if (file.status === Statuses.STORED && file.localPath) {
         try {
           fs.unlinkSync(file.localPath);
@@ -304,10 +308,10 @@ class DB extends EventEmitter {
       }
     }
 
-    // Mark all FETCHING as STORED
-    this.findFiles({ status: Statuses.FETCHING })
+    // Clean old status
+    this.findFiles({ isFetching: true })
       .then((files) => (files || [])
-        .forEach((f) => this.updateFile(f.hash, { status: Statuses.STORED })));
+        .forEach((f) => this.updateFile(f.hash, { isFetching: false })));
   }
 
   async shareFile(hash, recipient) {

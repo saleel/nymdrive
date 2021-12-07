@@ -58,3 +58,39 @@ tr.active {
 .prompt-form {
   padding: 1rem;
 }
+
+button, button .icon {
+  cursor: pointer !important;
+}
+
+@keyframes blink {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+.blinking-dot {
+  animation: blink 1s infinite;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: green;
+  margin-bottom: 2px;
+  margin-left: 7px;
+}
+
+.green-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
+  background-color: green;
+  margin-bottom: 2px;
+  margin-left: 7px;
+}
+
+.active .green-dot, 
+.active .blinking-dot  {
+  background-color: white;
+}

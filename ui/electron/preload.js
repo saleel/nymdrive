@@ -10,6 +10,8 @@ contextBridge.exposeInMainWorld('DB', {
   deleteFileLocally: db.deleteFileLocally,
   deleteFile: db.deleteFile,
   shareFile: db.shareFile,
+  openFile: db.openFile,
+  clearCache: db.clearCache,
 });
 
 contextBridge.exposeInMainWorld('electron', {
@@ -20,12 +22,10 @@ contextBridge.exposeInMainWorld('electron', {
   },
 });
 
-
 db.on('client-connected', () => {
   ipcRenderer.send('client-connected');
-})
+});
 
 db.on('client-disconnected', () => {
   ipcRenderer.send('client-disconnected');
-})
-
+});

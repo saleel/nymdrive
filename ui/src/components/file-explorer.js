@@ -18,6 +18,10 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
   );
 
   async function onDrop(e) {
+    if (currentPath === GlobalPaths.SharedWithMe) {
+      return;
+    }
+
     const droppedFiles = [...e.dataTransfer.files];
 
     const existing = droppedFiles.find((d) => files.some((f) => f.name === d.name));
@@ -70,7 +74,16 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
       setCurrentPath(`${currentPath}/${file.name}`);
     }
 
-    await window.DB.fetchFile(file.hash);
+    await window.DB.openFile(file.hash);
+  }
+
+  async function onDownloadClick() {
+    await window.DB.fetchFile(selectedFile.hash);
+  }
+
+  async function onClearCacheClick() {
+    await window.DB.clearCache();
+    alert('All temporary files have been deleted');
   }
 
   async function onDeleteLocalClick() {
@@ -117,14 +130,14 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
         <div className="toolbar-actions pull-right">
 
           {isStoredFileSelected() && (
-            <>
+            <div className="btn-group">
               <button
                 type="button"
                 className="btn"
                 onClick={onDeleteLocalClick}
                 title="Delete local copy"
               >
-                <span className="icon icon-trash" />
+                <span className="icon icon-cancel" />
               </button>
 
               <button
@@ -135,7 +148,16 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
               >
                 <span className="icon icon-trash" />
               </button>
-            </>
+
+              <button
+                type="button"
+                className="btn"
+                onClick={onDownloadClick}
+                title="Download file"
+              >
+                <span className="icon icon-download" />
+              </button>
+            </div>
           )}
 
           {isFileSelected() && (
@@ -156,6 +178,15 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
             title="New Folder"
           >
             <span className="icon icon-folder" />
+          </button>
+
+          <button
+            type="button"
+            className="btn"
+            onClick={onClearCacheClick}
+            title="New Folder"
+          >
+            <span className="icon icon-block" />
           </button>
 
         </div>
@@ -214,7 +245,11 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
                     <td>{file.type === 'FOLDER' ? '' : file.type}</td>
                     <td>{file.updatedAt ? new Date(file.updatedAt).toISOString() : ''}</td>
                     <td>{file.hash}</td>
-                    <td>{file.status}</td>
+                    <td style={{ width: '90px' }}>
+                      {file.status}
+                      {file.isFetching && (<span title="Fetching" className="blinking-dot" />)}
+                      {!file.isFetching && file.localPath && (<span title="Available locally" className="green-dot" />)}
+                    </td>
                   </tr>
                 ))}
               </tbody>
