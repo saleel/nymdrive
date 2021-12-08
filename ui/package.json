@@ -1,6 +1,6 @@
 {
   "name": "nym-drive",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "An open-source, decentralized, e2e encrypted, privacy-friendly alternative to Dropbox/Google Drive.",
   "main": "electron/main.js",
   "homepage": "./",
@@ -29,7 +29,7 @@
     "@electron-forge/maker-squirrel": "^6.0.0-beta.52",
     "@electron-forge/maker-zip": "^6.0.0-beta.52",
     "concurrently": "^6.4.0",
-    "electron": "^16.0.0",
+    "electron": "^16.0.4",
     "electron-icon-builder": "^2.0.1",
     "electron-reloader": "^1.2.1",
     "eslint": "^7.11.0",

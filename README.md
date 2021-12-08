@@ -1,8 +1,8 @@
 # NymDrive
 
 An open-source, decentralized, E2E encrypted, privacy friendly alternative to Google Drive/Dropbox.
+Version: **0.1.2**
 
-Version: 0.1.1
 
 ## Features
 - Files are encrypted locally and uploaded to server app using Nym mixnet. 
@@ -16,25 +16,32 @@ This repo contain code for both client app (written in Electron) and service-pro
 - Client app can be found in folder `/ui`
 - service-provider can be found in `/service-provider`
 
+Note: Even though the client can be theoretically built for Windows, Linux and Mac, **only Mac build is tested and available** for download at the moment. Feel free to build for Windows and Linux and raise an issue if you find any challenge.
+
 ## Running
 
 - Download NymDrive Client - [NymDrive v0.1.1](https://github.com/saleel/nymdrive/releases/download/0.1.1/NymDrive-mac.zip)
-- Run Nym web-socket client in your machine like `./nym-client run --id saleel`
+- Run Nym web-socket client in your machine like `./nym-client run --id client-id`
 - Open the NymDrive app. It should connect to your local Nym client and bring up the application.
 - Note: The service provider app will be hosted in a cloud provider. It may not work all the time due to connection timeout from the Nym client running in the server.
-- The address of the service provider is hardcoded in the client. The hosted server app will be listening to that address.
-- You can also chose to run your own service provider app. You will need to provide [Textile Buckets](https://docs.textile.io/buckets/) API keys as env variables.
-- You will also need to edit the server app Nym address in `ui/electron/config.js`
+- The address of the service provider is configurable in the client. The hosted server app will be listening to the default address configured in the app.
+- You can chose to run your own service provider and have your client send messages to that (read below).
 
 ## Running Locally / Development Mode
 
 To run the server app, go to `/service-provider` and run
 - `npm run start`
 
+- You will need to provide [Textile Buckets](https://docs.textile.io/buckets/) API keys for env variables (`THREAD_KEY` and `THREAD_SECRET`).
+- To update the client to point to your own service provider, update `NYM_SERVER_ADDRESS` key in `config.json` file in your Application Data folder. The AppData folder in Mac would be `~/Library/Application Support/nym-drive/`.
+
 To run the client app in dev mode, go to `/ui` and run both the commands below:
 
 - `npm run start-react`
 - `npm run electron`
+
+Tp build the client, run
+- `npm run make`
 
 ## TODO
 - Add file logger instead on console logs
@@ -45,5 +52,5 @@ To run the client app in dev mode, go to `/ui` and run both the commands below:
 
 [Presentation](https://docs.google.com/presentation/d/1MpvIK32Mx9VKLVfMTcvbeyrsKHHUsTvDQ-3n31dR0NE/)
 
-[Demo Video](https://youtu.be/oSLlbUhLkH0)
+[Demo Video](https://www.youtube.com/watch?v=aWpZVNete9o)
 
