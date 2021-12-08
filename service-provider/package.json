@@ -1,23 +1,25 @@
 {
   "type": "module",
-  "name": "server",
-  "description": "Produces layer-encrypted Sphinx packets for use with Nym mixnets.",
-  "version": "1.0.0",
+  "name": "nymdrive-service-provider",
+  "description": "service provider app of NymDrive.",
+  "version": "0.1.2",
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon .",
     "start": "node ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@textile/hub": "^6.3.1",
+    "@textile/hub": "^6.3.2",
     "dotenv": "^10.0.0",
-    "ws": "^8.2.3"
+    "ws": "^8.3.0"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/saleel/nymdrive"
   },
   "devDependencies": {
-    "eslint": "^8.3.0",
+    "eslint": "^8.4.1",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.25.3",
     "nodemon": "^2.0.15"

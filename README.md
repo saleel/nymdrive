@@ -1,7 +1,14 @@
 # NymDrive
 
+![NymDrive](https://raw.githubusercontent.com/saleel/nymdrive/main/ui/icons/png/128x128.png)
+
 An open-source, decentralized, E2E encrypted, privacy friendly alternative to Google Drive/Dropbox.
+
 Version: **0.1.2**
+
+[Presentation](https://docs.google.com/presentation/d/1MpvIK32Mx9VKLVfMTcvbeyrsKHHUsTvDQ-3n31dR0NE/)
+
+[Demo Video](https://www.youtube.com/watch?v=aWpZVNete9o)
 
 
 ## Features
@@ -20,7 +27,7 @@ Note: Even though the client can be theoretically built for Windows, Linux and M
 
 ## Running
 
-- Download NymDrive Client - [NymDrive v0.1.1](https://github.com/saleel/nymdrive/releases/download/0.1.1/NymDrive-mac.zip)
+- Download NymDrive Client - [NymDrive v0.1.2](https://github.com/saleel/nymdrive/releases/download/0.1.2/NymDrive-mac.zip)
 - Run Nym web-socket client in your machine like `./nym-client run --id client-id`
 - Open the NymDrive app. It should connect to your local Nym client and bring up the application.
 - Note: The service provider app will be hosted in a cloud provider. It may not work all the time due to connection timeout from the Nym client running in the server.
@@ -35,6 +42,10 @@ To run the server app, go to `/service-provider` and run
 - You will need to provide [Textile Buckets](https://docs.textile.io/buckets/) API keys for env variables (`THREAD_KEY` and `THREAD_SECRET`).
 - To update the client to point to your own service provider, update `NYM_SERVER_ADDRESS` key in `config.json` file in your Application Data folder. The AppData folder in Mac would be `~/Library/Application Support/nym-drive/`.
 
+You can also run using Docker
+- `docker build -t nymdrive .`
+- `docker run -e THREAD_KEY=your-key -e THREAD_SECRET=your-secret -e NYM_CLIENT_URL="ws://host.docker.internal:1234" nymdrive` (if nym-client is running on port 1234 in host machine).
+
 To run the client app in dev mode, go to `/ui` and run both the commands below:
 
 - `npm run start-react`
@@ -45,12 +56,8 @@ Tp build the client, run
 
 ## TODO
 - Add file logger instead on console logs
+- Sync DB between multiple devices running NymDrive connected to same client address
 - Use nym web-assembly client for UI when ready
 - Option for publishing Public un-encrypted files to nym blockchain
 - UI to match Windows/Linux
-
-
-[Presentation](https://docs.google.com/presentation/d/1MpvIK32Mx9VKLVfMTcvbeyrsKHHUsTvDQ-3n31dR0NE/)
-
-[Demo Video](https://www.youtube.com/watch?v=aWpZVNete9o)
 

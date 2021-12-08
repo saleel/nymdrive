@@ -12,6 +12,7 @@ const handlers = {
 
 /** @type {WebSocket} */
 let ws;
+let timeout;
 function connect(context) {
   ws = new WebSocket(process.env.NYM_CLIENT_URL);
 
@@ -21,10 +22,12 @@ function connect(context) {
   });
 
   ws.onclose = (e) => {
-    console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.reason);
-    setTimeout(() => {
-      connect(context);
-    }, 1000);
+    if (e.code !== 999) {
+      console.log('Socket is closed. Reconnect will be attempted in 1 second.', e.code, e.reason);
+      timeout = setTimeout(() => {
+        connect(context);
+      }, 1000);
+    }
   };
 
   ws.onerror = (err) => {
@@ -89,4 +92,10 @@ function connect(context) {
 
 buildContext().then((context) => {
   connect(context);
+});
+
+process.on('SIGINT', () => {
+  ws.close(999);
+  clearTimeout(timeout);
+  process.exit(0);
 });
