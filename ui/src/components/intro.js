@@ -58,7 +58,6 @@ const Intro = function Intro() {
         {' '}
         to create a new folder.
       </p>
-      <br />
       <p>
         <span>Or </span>
         <button
@@ -68,7 +67,7 @@ const Intro = function Intro() {
         >
           Add an existing device
         </button>
-        <span> you own.</span>
+        <span> where you already use NymDrive.</span>
       </p>
     </div>
   );

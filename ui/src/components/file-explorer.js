@@ -23,9 +23,19 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
 
   const prompt = usePrompt();
 
+  const [isClientConnected] = usePromise(
+    () => window.API.isClientConnected(),
+    { defaultValue: false, refreshInterval: 1000 },
+  );
+
   const [files, { isFetching, reFetch: reFetchFiles }] = usePromise(
     () => window.API.findFiles({ path: currentPath }),
-    { defaultValue: [], dependencies: [currentPath], refreshInterval: 1000 },
+    {
+      defaultValue: [],
+      conditions: [isClientConnected],
+      dependencies: [currentPath],
+      refreshInterval: 1000,
+    },
   );
 
   const [favoriteFolders, { reFetch: reFetchFavoriteFolders }] = usePromise(
@@ -278,7 +288,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
             </nav>
           </div>
 
-          {isFetching && (
+          {!isClientConnected && !files.length && (
             <div className="loader">
               <Loader
                 type="Oval"
@@ -290,11 +300,11 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
             </div>
           )}
 
-          {!isFetching && files.length === 0 && (
+          {isClientConnected && files.length === 0 && (
             <Intro />
           )}
 
-          {!isFetching && files.length > 0 && (
+          {isClientConnected && !isFetching && files.length > 0 && (
             <div
               className="pane"
               onDragEnter={(e) => { e.preventDefault(); }}

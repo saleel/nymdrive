@@ -17,6 +17,7 @@ contextBridge.exposeInMainWorld('API', {
   getFavoriteFolders: api.getFavoriteFolders,
   addDevice: api.addDevice,
   registerNewDeviceHandler: api.registerNewDeviceHandler,
+  isClientConnected: api.isClientConnected,
 });
 
 contextBridge.exposeInMainWorld('electron', {
