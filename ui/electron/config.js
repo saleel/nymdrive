@@ -5,12 +5,9 @@ let NYM_SERVER_ADDRESS = 'ECgMYfLgvm6Z57RgCqytEyuYPBwkWyL3CPHC9DDSCiBU.DnuvLQpCL
 let NYM_CLIENT_URL = 'ws://192.168.1.106:1977';
 
 let appDataDir = process.env.APPDATA || (process.platform === 'darwin' ? `${process.env.HOME}/Library/Application Support/` : `${process.env.HOME}/.local/share`);
-if (process.platform === 'win32') {
-  appDataDir = '%APPDATA%';
-}
+const APP_DATA_PATH = path.join(appDataDir, 'nymdrive');
 
-const APP_DATA_PATH = path.join(appDataDir, 'nym-drive');
-const configFilePath = path.join(APP_DATA_PATH, 'nymdrive', 'config.json');
+const configFilePath = path.join(APP_DATA_PATH, 'config.json');
 
 if (!fs.existsSync(configFilePath)) {
   fs.writeFileSync(configFilePath, JSON.stringify({
