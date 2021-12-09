@@ -20,6 +20,10 @@ code {
   margin-right: 0.5rem;
 }
 
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
 .mb-2 {
   margin-bottom: 0.5rem;
 }
@@ -102,6 +106,14 @@ button, button .icon {
 .loader {
   /* width: 100%; */
   /* height: 100%; */
+  display: flex;
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+.intro {
   display: flex;
   flex: 1;
   justify-content: center;

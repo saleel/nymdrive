@@ -8,7 +8,8 @@ const EventEmitter = require('events');
 const { hashFile, encryptFile, decryptFile } = require('./utils');
 const NymClient = require('./nym-client');
 
-const COLLECTION_NAME = 'files';
+const FILES_COLLECTION_NAME = 'files';
+const DEVICES_COLLECTION_NAME = 'devices';
 
 const Statuses = {
   PENDING: 'PENDING',
@@ -40,6 +41,9 @@ class DB extends EventEmitter {
     this.getFavoriteFolders = this.getFavoriteFolders.bind(this);
     this.setFolderFavorite = this.setFolderFavorite.bind(this);
     this.removeFolderFavorite = this.removeFolderFavorite.bind(this);
+    this.addDevice = this.addDevice.bind(this);
+    this.onNewDevice = this.onNewDevice.bind(this);
+    this.registerNewDeviceHandler = this.registerNewDeviceHandler.bind(this);
 
     this.isReady = false;
 
@@ -65,10 +69,16 @@ class DB extends EventEmitter {
       autosave: true,
       autosaveInterval: 1000,
       autoloadCallback: () => {
-        this.filesCollection = this.db.getCollection(COLLECTION_NAME);
+        this.filesCollection = this.db.getCollection(FILES_COLLECTION_NAME);
         if (this.filesCollection === null) {
-          this.filesCollection = this.db.addCollection(COLLECTION_NAME);
+          this.filesCollection = this.db.addCollection(FILES_COLLECTION_NAME);
         }
+
+        this.devicesCollection = this.db.getCollection(DEVICES_COLLECTION_NAME);
+        if (this.devicesCollection === null) {
+          this.devicesCollection = this.db.addCollection(DEVICES_COLLECTION_NAME);
+        }
+
         this.isReady = true;
 
         // Delete any temporarily downloaded files in the previous session
@@ -97,6 +107,39 @@ class DB extends EventEmitter {
 
     await this.waitTillReady();
 
+    if (data.action === 'SHARE') {
+      return this.onNewSharedFile(data);
+    }
+
+    if (data.action === 'NEW_DEVICE') {
+      return this.onNewDevice(data);
+    }
+  }
+
+  async registerNewDeviceHandler(handler) {
+    if (!this.onNewDeviceHandler) {
+      this.onNewDeviceHandler = handler;
+    }
+  }
+
+  async onNewDevice(data) {
+    const approved = this.onNewDeviceHandler(data.senderAddress);
+
+    if (!approved) {
+      await this.nymClient.sendData({
+        action: 'ADD_DEVICE_APPROVED',
+        actionId: data.actionId,
+        files: await this.findFiles(),
+      }, data.senderAddress);
+    } else {
+      await this.nymClient.sendData({
+        action: 'ADD_DEVICE_DENIED',
+        actionId: data.actionId,
+      }, data.senderAddress);
+    }
+  }
+
+  async onNewSharedFile(data) {
     const existing = this.filesCollection.find({
       path: 'SharedWithMe',
       name: data.name,
@@ -406,6 +449,21 @@ class DB extends EventEmitter {
       type: 'FOLDER',
       isFavorite: true,
     });
+  }
+
+  async addDevice(address) {
+    await this.waitTillReady();
+
+    const result = await this.nymClient.sendData({
+      action: 'ADD_DEVICE',
+    }, address);
+
+    if (result.action === 'ADD_DEVICE_APPROVED') {
+      await this.filesCollection.insert(result.files);
+      return true;
+    }
+
+    return false;
   }
 }
 

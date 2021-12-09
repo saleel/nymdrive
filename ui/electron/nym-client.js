@@ -70,12 +70,10 @@ class NymClient {
       try {
         const data = message.action ? message : JSON.parse(message.message);
 
-        if (data.action === 'SHARE') {
-          this.onReceive(data);
-        } else if (data.actionId && this.actionWaiters[data.actionId]) {
+        if (data.actionId && this.actionWaiters[data.actionId]) {
           this.actionWaiters[data.actionId](data);
         } else {
-          throw new Error('No handler for data', data);
+          this.onReceive(data);
         }
       } catch (error) {
         console.warn(error, message);
@@ -102,7 +100,7 @@ class NymClient {
     await this.isReady();
 
     return new Promise((resolve, reject) => {
-      const actionId = Math.random().toString(36).slice(2);
+      const actionId = message.actionId || Math.random().toString(36).slice(2);
 
       this.ws.send(JSON.stringify({
         type: 'send',

@@ -7,6 +7,7 @@ import {
 import usePromise from '../hooks/use-promise';
 import usePrompt from '../hooks/use-prompt';
 import useHistory from '../hooks/use-history';
+import Intro from './intro';
 
 const FileExplorer = function FileExplorer({ path: initialPath }) {
   const {
@@ -277,7 +278,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
             </nav>
           </div>
 
-          {isFetching ? (
+          {isFetching && (
             <div className="loader">
               <Loader
                 type="Oval"
@@ -287,7 +288,13 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
               />
               <div>Ensure NYM client is running locally</div>
             </div>
-          ) : (
+          )}
+
+          {!isFetching && files.length === 0 && (
+            <Intro />
+          )}
+
+          {!isFetching && files.length > 0 && (
             <div
               className="pane"
               onDragEnter={(e) => { e.preventDefault(); }}

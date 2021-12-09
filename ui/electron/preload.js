@@ -1,20 +1,22 @@
 const { contextBridge, ipcRenderer } = require('electron');
-const DB = require('./api');
+const API = require('./api');
 
-const db = new DB();
+const api = new API();
 contextBridge.exposeInMainWorld('API', {
-  createFile: db.createFile,
-  findFiles: db.findFiles,
-  createFolder: db.createFolder,
-  fetchFile: db.fetchFile,
-  deleteFileLocally: db.deleteFileLocally,
-  deleteFile: db.deleteFile,
-  shareFile: db.shareFile,
-  openFile: db.openFile,
-  clearCache: db.clearCache,
-  setFolderFavorite: db.setFolderFavorite,
-  removeFolderFavorite: db.removeFolderFavorite,
-  getFavoriteFolders: db.getFavoriteFolders,
+  createFile: api.createFile,
+  findFiles: api.findFiles,
+  createFolder: api.createFolder,
+  fetchFile: api.fetchFile,
+  deleteFileLocally: api.deleteFileLocally,
+  deleteFile: api.deleteFile,
+  shareFile: api.shareFile,
+  openFile: api.openFile,
+  clearCache: api.clearCache,
+  setFolderFavorite: api.setFolderFavorite,
+  removeFolderFavorite: api.removeFolderFavorite,
+  getFavoriteFolders: api.getFavoriteFolders,
+  addDevice: api.addDevice,
+  registerNewDeviceHandler: api.registerNewDeviceHandler,
 });
 
 contextBridge.exposeInMainWorld('electron', {
@@ -25,10 +27,10 @@ contextBridge.exposeInMainWorld('electron', {
   },
 });
 
-db.on('client-connected', () => {
+api.on('client-connected', () => {
   ipcRenderer.send('client-connected');
 });
 
-db.on('client-disconnected', () => {
+api.on('client-disconnected', () => {
   ipcRenderer.send('client-disconnected');
 });
