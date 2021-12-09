@@ -1,14 +1,14 @@
 {
-  "name": "nymdrive-client",
+  "name": "nymdrive",
   "version": "0.1.2",
   "description": "An open-source, decentralized, e2e encrypted, privacy-friendly alternative to Dropbox/Google Drive.",
   "main": "electron/main.js",
   "homepage": "./",
   "scripts": {
-    "start-react": "ESLINT_NO_DEV_ERRORS='true' BROWSER=none react-scripts start",
+    "start-react": "cross-env ESLINT_NO_DEV_ERRORS='true' BROWSER=none react-scripts start",
     "build-react": "react-scripts build",
     "dev": "concurrently -k \"npm run start-react\" \"npm run electron\"",
-    "electron": "wait-on tcp:3000 && electron-forge start",
+    "electron": "electron .",
     "package": "react-scripts build && electron-forge package",
     "make": "react-scripts build && electron-forge make"
   },
@@ -30,6 +30,7 @@
     "@electron-forge/maker-zip": "^6.0.0-beta.52",
     "@types/lokijs": "^1.5.7",
     "concurrently": "^6.4.0",
+    "cross-env": "^7.0.3",
     "electron": "^16.0.4",
     "electron-icon-builder": "^2.0.1",
     "electron-reloader": "^1.2.1",

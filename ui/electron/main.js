@@ -64,4 +64,6 @@ app.on('window-all-closed', () => {
   // Do nothing
 });
 
-app.dock.hide();
+if (app.dock) {
+  app.dock.hide();
+}

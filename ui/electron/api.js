@@ -7,6 +7,7 @@ const pathLib = require('path');
 const EventEmitter = require('events');
 const { hashFile, encryptFile, decryptFile } = require('./utils');
 const NymClient = require('./nym-client');
+const { APP_DATA_PATH } = require('./config');
 
 const FILES_COLLECTION_NAME = 'files';
 const DEVICES_COLLECTION_NAME = 'devices';
@@ -47,10 +48,7 @@ class DB extends EventEmitter {
 
     this.isReady = false;
 
-    const appDataDir = process.env.APPDATA || (process.platform === 'darwin' ? `${process.env.HOME}/Library/Application Support/` : `${process.env.HOME}/.local/share`);
-    this.appDataPath = `${appDataDir}nym-drive`; // TODO: Change to app.getPath (not working with contextIsolation)
-
-    console.debug('App Data Path: ', this.appDataPath);
+    console.debug('App Data Path: ', APP_DATA_PATH);
 
     /** @type {import("./nym-client")} */
     this.nymClient = new NymClient({
@@ -63,7 +61,8 @@ class DB extends EventEmitter {
   async onConnect(address) {
     this.emit('client-connected');
 
-    this.db = new Loki(`${this.appDataPath}/nymdrive-${address}.db`, {
+    const dbPath = pathLib.join(APP_DATA_PATH, `nymdrive-${address}.db`)
+    this.db = new Loki(dbPath, {
       adapter: new FileAdapter(),
       autoload: true,
       autosave: true,
@@ -302,7 +301,7 @@ class DB extends EventEmitter {
 
     const decrypted = await decryptFile(encryptedFileString, file.encryptionKey);
 
-    const destinationPath = pathLib.join(this.appDataPath, '/', file.name);
+    const destinationPath = pathLib.join(APP_DATA_PATH, '/', file.name);
 
     fs.writeFileSync(destinationPath, decrypted);
 
