@@ -44,6 +44,7 @@ class DB extends EventEmitter {
     this.addDevice = this.addDevice.bind(this);
     this.onNewDevice = this.onNewDevice.bind(this);
     this.registerNewDeviceHandler = this.registerNewDeviceHandler.bind(this);
+    this.isClientConnected = this.isClientConnected.bind(this);
 
     this.isReady = false;
 
@@ -58,6 +59,10 @@ class DB extends EventEmitter {
       onReceive: this.onReceive,
       onDisconnect: this.onDisconnect,
     });
+  }
+
+  isClientConnected() {
+    return this.isReady;
   }
 
   async onConnect(address) {
