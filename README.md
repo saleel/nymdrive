@@ -4,7 +4,7 @@
 
 An open-source, decentralized, E2E encrypted, privacy friendly alternative to Google Drive/Dropbox.
 
-Version: **0.1.2**
+Version: **0.2.0**
 
 [Presentation](https://docs.google.com/presentation/d/1MpvIK32Mx9VKLVfMTcvbeyrsKHHUsTvDQ-3n31dR0NE/)
 
@@ -16,6 +16,7 @@ Version: **0.1.2**
 - Server app (service-provider) store the files in IPFS using Textile buckets. 
 - Files can be retrieved/deleted later using the file hash. Knowledge of hash proves the ownership of files.
 - Neither service-provider or IPFS storage providers can see the contents or name of the stored files.
+- Connect multiple devices running NymDrive and keep them in sync.
 
 
 This repo contain code for both client app (written in Electron) and service-provider.
@@ -27,7 +28,7 @@ Note: Even though the client can be theoretically built for Windows, Linux and M
 
 ## Running
 
-- Download NymDrive Client - [NymDrive v0.1.2](https://github.com/saleel/nymdrive/releases/download/0.1.2/NymDrive-mac.zip)
+- Download NymDrive Client - [NymDrive v0.2.0](https://github.com/saleel/nymdrive/releases/download/0.2.0/NymDrive-mac.zip)
 - Run Nym web-socket client in your machine like `./nym-client run --id client-id`
 - Open the NymDrive app. It should connect to your local Nym client and bring up the application.
 - Note: The service provider app will be hosted in a cloud provider. It may not work all the time due to connection timeout from the Nym client running in the server.
@@ -56,7 +57,6 @@ Tp build the client, run
 
 ## TODO
 - Add file logger instead on console logs
-- Sync DB between multiple devices running NymDrive connected to same client address
 - Use nym web-assembly client for UI when ready
 - Option for publishing Public un-encrypted files to nym blockchain
 - UI to match Windows/Linux

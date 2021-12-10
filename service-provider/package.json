@@ -2,7 +2,7 @@
   "type": "module",
   "name": "nymdrive-service-provider",
   "description": "service provider app of NymDrive.",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "main": "src/index.js",
   "scripts": {
     "dev": "nodemon .",
