@@ -122,7 +122,7 @@ class DB extends EventEmitter {
     }
 
     if (data.action === 'FILE_UPDATE') {
-      this.updateFile(data.fileId, data.changes, false);
+      this.updateFile(data.fileId, data.changes);
       return;
     }
 
@@ -323,7 +323,7 @@ class DB extends EventEmitter {
     await this.broadcastChangeToAllDevices(folder.id, folder);
   }
 
-  async updateFile(id, changes, broadcastChange = true) {
+  async updateFile(id, changes, broadcastChange = false) {
     await this.waitTillReady();
 
     const file = this.filesCollection.findOne({ id: { $eq: id } });
@@ -500,7 +500,7 @@ class DB extends EventEmitter {
     })[0];
 
     if (folder) {
-      this.updateFile(id, { isFavorite: true });
+      this.updateFile(id, { isFavorite: true }, true);
     }
   }
 
@@ -513,7 +513,7 @@ class DB extends EventEmitter {
     })[0];
 
     if (folder) {
-      this.updateFile(hash, { isFavorite: true });
+      this.updateFile(hash, { isFavorite: true }, true);
     }
   }
 
