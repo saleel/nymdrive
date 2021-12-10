@@ -31,6 +31,7 @@ const Intro = function Intro() {
           window.alert('New device request failed');
         }
       } catch (error) {
+        console.error(error);
         window.alert('New device request failed');
       }
     }

@@ -47,6 +47,7 @@ class DB extends EventEmitter {
     this.registerNewDeviceHandler = this.registerNewDeviceHandler.bind(this);
     this.isClientConnected = this.isClientConnected.bind(this);
     this.broadcastChangeToAllDevices = this.broadcastChangeToAllDevices.bind(this);
+    this.onNewDeviceApproved = this.onNewDeviceApproved.bind(this);
 
     this.isReady = false;
 
@@ -514,17 +515,17 @@ class DB extends EventEmitter {
     }, address);
 
     if (result.action === 'ADD_DEVICE_APPROVED') {
-      return this.onNewDeviceApproved(address, result.files);
+      this.onNewDeviceApproved(result.senderAddress, result.files);
+      return true;
     }
 
     return false;
   }
 
-  async onNewDeviceApproved(address, files) {
-    await this.filesCollection.insert(files);
+  onNewDeviceApproved(address, files) {
+    this.filesCollection.insert(files);
     this.devicesCollection.insert({ address });
     console.log('Added new device', address);
-    return true;
   }
 }
 
