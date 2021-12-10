@@ -146,10 +146,22 @@ class DB extends EventEmitter {
     console.log('approved', approved);
 
     if (approved === true) {
+      let allFiles = await this.findFiles();
+      allFiles = allFiles.map((f) => ({
+        encryptionKey: f.encryptionKey,
+        hash: f.hash,
+        id: f.id,
+        name: f.name,
+        path: f.path,
+        size: f.size,
+        status: f.status,
+        type: f.type,
+      }));
+
       await this.nymClient.sendData({
         action: 'ADD_DEVICE_APPROVED',
         actionId: data.actionId,
-        files: await this.findFiles(),
+        files: allFiles,
       }, data.senderAddress);
 
       this.devicesCollection.insert({ address: data.senderAddress });
