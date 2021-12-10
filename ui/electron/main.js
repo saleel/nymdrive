@@ -24,6 +24,7 @@ function createWindow() {
       contextIsolation: true,
       nodeIntegration: true,
     },
+    autoHideMenuBar: true,
   });
 
   mainWindow.loadURL(ui);
