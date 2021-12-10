@@ -310,7 +310,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
             </div>
           )}
 
-          {isClientConnected && files.length === 0 && (
+          {isClientConnected && files.length === 0 && currentPath === GlobalPaths.Home && (
             <div
               className="intro"
               onDragEnter={(e) => { e.preventDefault(); }}
