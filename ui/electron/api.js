@@ -50,8 +50,6 @@ class DB extends EventEmitter {
 
     this.isReady = false;
 
-    console.debug('App Data Path: ', APP_DATA_PATH);
-
     /** @type {import("./nym-client")} */
     this.nymClient = new NymClient({
       onConnect: this.onConnect, // Upload all pending files
