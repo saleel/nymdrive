@@ -8,7 +8,7 @@ Version: **0.2.1**
 
 [Presentation](https://docs.google.com/presentation/d/1MpvIK32Mx9VKLVfMTcvbeyrsKHHUsTvDQ-3n31dR0NE/)
 
-[Demo Video](https://youtu.be/k2zhmCUoUbs)
+[Demo Video](https://youtu.be/5Rx73nw8NYI)
 
 
 ## Features
