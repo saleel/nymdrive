@@ -4,7 +4,7 @@
 
 An open-source, decentralized, E2E encrypted, privacy friendly alternative to Google Drive/Dropbox.
 
-Version: **0.2.0**
+Version: **0.2.1**
 
 [Presentation](https://docs.google.com/presentation/d/1MpvIK32Mx9VKLVfMTcvbeyrsKHHUsTvDQ-3n31dR0NE/)
 
@@ -28,7 +28,7 @@ Note: Even though the client can be theoretically built for Windows, Linux and M
 
 ## Running
 
-- Download NymDrive Client - [NymDrive v0.2.0](https://github.com/saleel/nymdrive/releases/download/0.2.0/NymDrive-mac.zip) (Mac build)
+- Download NymDrive Client - [NymDrive v0.2.1](https://github.com/saleel/nymdrive/releases/download/0.2.1/NymDrive-mac.zip) (Mac build)
 - Run Nym web-socket client in your machine like `./nym-client run --id client-id`
 - Open the NymDrive app. It should connect to your local Nym client and bring up the application.
 - Note: The service provider app will be hosted in a cloud provider. It may not work all the time due to connection timeout from the Nym client running in the server.

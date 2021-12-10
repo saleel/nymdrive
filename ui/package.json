@@ -1,6 +1,6 @@
 {
   "name": "nymdrive",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "An open-source, decentralized, e2e encrypted, privacy-friendly alternative to Dropbox/Google Drive.",
   "main": "electron/main.js",
   "homepage": "./",
