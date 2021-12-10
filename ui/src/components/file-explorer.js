@@ -321,7 +321,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
             </div>
           )}
 
-          {isClientConnected && !isFetching && files.length > 0 && (
+          {isClientConnected && files.length > 0 && (
             <div
               className="pane"
               onDragEnter={(e) => { e.preventDefault(); }}
