@@ -106,20 +106,28 @@ class DB extends EventEmitter {
   }
 
   async onReceive(data) {
-    console.log('Received', data.name);
+    console.log('Received', data);
 
     await this.waitTillReady();
 
     if (data.action === 'SHARE') {
       this.onNewSharedFile(data);
+      return;
     }
 
-    if (data.action === 'NEW_DEVICE') {
+    if (data.action === 'ADD_DEVICE') {
       this.onNewDevice(data);
+      return;
     }
 
     if (data.action === 'FILE_UPDATE') {
       this.updateFile(data.fileId, data.changes, false);
+      return;
+    }
+
+    if (data.action === 'ADD_DEVICE_APPROVED') {
+      this.onNewDeviceApproved(data.senderAddress, data.files);
+      return;
     }
 
     console.warn('Unknown action received', data);
@@ -132,9 +140,11 @@ class DB extends EventEmitter {
   }
 
   async onNewDevice(data) {
-    const approved = this.onNewDeviceHandler(data.senderAddress);
+    const approved = await this.onNewDeviceHandler(data.senderAddress);
 
-    if (!approved) {
+    console.log('approved', approved);
+
+    if (approved === true) {
       await this.nymClient.sendData({
         action: 'ADD_DEVICE_APPROVED',
         actionId: data.actionId,
@@ -212,7 +222,7 @@ class DB extends EventEmitter {
     });
   }
 
-  async findFiles({ path, status }) {
+  async findFiles({ path, status } = {}) {
     await this.waitTillReady();
 
     const results = this.filesCollection.find({
@@ -504,14 +514,17 @@ class DB extends EventEmitter {
     }, address);
 
     if (result.action === 'ADD_DEVICE_APPROVED') {
-      await this.filesCollection.insert(result.files);
-      return true;
+      return this.onNewDeviceApproved(address, result.files);
     }
 
+    return false;
+  }
+
+  async onNewDeviceApproved(address, files) {
+    await this.filesCollection.insert(files);
     this.devicesCollection.insert({ address });
     console.log('Added new device', address);
-
-    return false;
+    return true;
   }
 }
 
