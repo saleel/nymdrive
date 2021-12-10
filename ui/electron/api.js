@@ -215,6 +215,7 @@ class DB extends EventEmitter {
       size: changes.size,
       status: changes.status,
       type: changes.type,
+      isFavorite: changes.isFavorite,
     };
 
     for (const device of devices) {
@@ -513,16 +514,16 @@ class DB extends EventEmitter {
     }
   }
 
-  async removeFolderFavorite(hash) {
+  async removeFolderFavorite(id) {
     await this.waitTillReady();
-
     const folder = this.filesCollection.find({
       type: 'FOLDER',
-      hash,
+      id,
     })[0];
 
     if (folder) {
-      this.updateFile(hash, { isFavorite: true }, true);
+      this.updateFile(id, { isFavorite: false }, true);
+      console.log('done');
     }
   }
 

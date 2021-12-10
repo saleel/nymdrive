@@ -40,7 +40,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
 
   const [favoriteFolders, { reFetch: reFetchFavoriteFolders }] = usePromise(
     () => window.API.getFavoriteFolders(),
-    { defaultValue: [] },
+    { defaultValue: [], refreshInterval: 5000 },
   );
 
   async function onFavoriteDrop(e) {
@@ -161,6 +161,13 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
     return isFileSelected() && selectedFile.status !== Statuses.PENDING;
   }
 
+  async function onRemoveFavorite(e, folder) {
+    e.stopPropagation();
+    e.preventDefault();
+    await window.API.removeFolderFavorite(folder.id);
+    await reFetchFavoriteFolders();
+  }
+
   return (
     <div className="window">
 
@@ -265,7 +272,6 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
                   {GlobalPathsDisplay[path]}
                 </span>
               ))}
-
             </nav>
 
             <nav
@@ -282,7 +288,11 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
                   className={`nav-group-item p-1 ${`${folder.path}${folder.name}/` === currentPath ? 'active' : ''}`}
                   onClick={() => { setCurrentPath(`${folder.path}${folder.name}/`); }}
                 >
-                  {folder.name}
+                  <span>{folder.name}</span>
+                  <span
+                    className="icon icon-cancel remove-fav-button"
+                    onClick={(e) => { onRemoveFavorite(e, folder); }}
+                  />
                 </span>
               ))}
             </nav>

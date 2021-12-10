@@ -120,3 +120,8 @@ button, button .icon {
   align-items: center;
   flex-direction: column;
 }
+
+.remove-fav-button {
+  float: right !important;
+  cursor: pointer;
+}
