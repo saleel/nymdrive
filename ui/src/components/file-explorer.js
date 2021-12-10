@@ -28,7 +28,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
     { defaultValue: false, refreshInterval: 1000 },
   );
 
-  const [files, { isFetching, reFetch: reFetchFiles }] = usePromise(
+  const [files, { reFetch: reFetchFiles }] = usePromise(
     () => window.API.findFiles({ path: currentPath }),
     {
       defaultValue: [],
