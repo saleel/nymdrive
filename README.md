@@ -61,3 +61,5 @@ Tp build the client, run
 - Option for publishing Public un-encrypted files to nym blockchain
 - UI to match Windows/Linux
 
+## Known issues
+- File drag and drop is inconsistent in Ubuntu
