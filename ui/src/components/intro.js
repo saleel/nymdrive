@@ -49,7 +49,7 @@ const Intro = function Intro() {
   }
 
   return (
-    <div className="intro">
+    <>
       <p className="mb-1">Welcome to NymDrive</p>
       <p>
         Start by dropping files here or Click
@@ -69,7 +69,7 @@ const Intro = function Intro() {
         </button>
         <span> where you already use NymDrive.</span>
       </p>
-    </div>
+    </>
   );
 };
 

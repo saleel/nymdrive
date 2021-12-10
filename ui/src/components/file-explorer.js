@@ -301,7 +301,14 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
           )}
 
           {isClientConnected && files.length === 0 && (
-            <Intro />
+            <div
+              className="intro"
+              onDragEnter={(e) => { e.preventDefault(); }}
+              onDragOver={(e) => { e.preventDefault(); }}
+              onDrop={onFileDrop}
+            >
+              <Intro />
+            </div>
           )}
 
           {isClientConnected && !isFetching && files.length > 0 && (
