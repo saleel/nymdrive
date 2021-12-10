@@ -143,8 +143,6 @@ class DB extends EventEmitter {
   async onNewDevice(data) {
     const approved = await this.onNewDeviceHandler(data.senderAddress);
 
-    console.log('approved', approved);
-
     if (approved === true) {
       let allFiles = await this.findFiles();
       allFiles = allFiles.map((f) => ({
@@ -158,7 +156,7 @@ class DB extends EventEmitter {
         type: f.type,
       }));
 
-      await this.nymClient.sendData({
+      this.nymClient.sendData({
         action: 'ADD_DEVICE_APPROVED',
         actionId: data.actionId,
         files: allFiles,
@@ -208,14 +206,25 @@ class DB extends EventEmitter {
   async broadcastChangeToAllDevices(fileId, changes) {
     const devices = this.devicesCollection.find();
 
+    const cleanedChanges = {
+      encryptionKey: changes.encryptionKey,
+      hash: changes.hash,
+      id: changes.id,
+      name: changes.name,
+      path: changes.path,
+      size: changes.size,
+      status: changes.status,
+      type: changes.type,
+    };
+
     for (const device of devices) {
-      console.log('Sending change to device ', device.address);
+      console.log('Sending changes to device ', device.address);
 
       // eslint-disable-next-line no-await-in-loop
       await this.nymClient.sendData({
         action: 'FILE_UPDATE',
         fileId,
-        changes,
+        changes: cleanedChanges,
       }, device.address);
     }
   }
