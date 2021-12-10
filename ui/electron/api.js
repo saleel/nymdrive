@@ -337,6 +337,13 @@ class DB extends EventEmitter {
       this.filesCollection.update(file);
     }
 
+    if (!file) {
+      this.filesCollection.insert({
+        id,
+        ...changes,
+      });
+    }
+
     if (broadcastChange) {
       await this.broadcastChangeToAllDevices(id, changes);
     }
