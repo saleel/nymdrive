@@ -46,6 +46,7 @@ class DB extends EventEmitter {
     this.onNewDevice = this.onNewDevice.bind(this);
     this.registerNewDeviceHandler = this.registerNewDeviceHandler.bind(this);
     this.isClientConnected = this.isClientConnected.bind(this);
+    this.broadcastChangeToAllDevices = this.broadcastChangeToAllDevices.bind(this);
 
     this.isReady = false;
 
@@ -66,7 +67,7 @@ class DB extends EventEmitter {
   async onConnect(address) {
     this.emit('client-connected');
 
-    const dbPath = pathLib.join(APP_DATA_PATH, `nymdrive-${address}.db`)
+    const dbPath = pathLib.join(APP_DATA_PATH, `nymdrive-${address}.db`);
     this.db = new Loki(dbPath, {
       adapter: new FileAdapter(),
       autoload: true,
@@ -112,12 +113,18 @@ class DB extends EventEmitter {
     await this.waitTillReady();
 
     if (data.action === 'SHARE') {
-      return this.onNewSharedFile(data);
+      this.onNewSharedFile(data);
     }
 
     if (data.action === 'NEW_DEVICE') {
-      return this.onNewDevice(data);
+      this.onNewDevice(data);
     }
+
+    if (data.action === 'FILE_UPDATE') {
+      this.updateFile(data.fileId, data.changes, false);
+    }
+
+    console.warn('Unknown action received', data);
   }
 
   async registerNewDeviceHandler(handler) {
@@ -135,6 +142,10 @@ class DB extends EventEmitter {
         actionId: data.actionId,
         files: await this.findFiles(),
       }, data.senderAddress);
+
+      this.devicesCollection.insert({ address: data.senderAddress });
+
+      console.log('Added new device', data.senderAddress);
     } else {
       await this.nymClient.sendData({
         action: 'ADD_DEVICE_DENIED',
@@ -153,9 +164,10 @@ class DB extends EventEmitter {
       return false;
     }
 
-    return this.filesCollection.insert({
+    const file = {
       path: 'SharedWithMe',
       encryptionKey: data.encryptionKey,
+      id: data.hash,
       hash: data.hash,
       name: data.name,
       size: data.size,
@@ -163,7 +175,28 @@ class DB extends EventEmitter {
       status: Statuses.STORED,
       createdAt: new Date(),
       updatedAt: new Date(),
-    });
+    };
+
+    await this.filesCollection.insert(file);
+
+    await this.broadcastChangeToAllDevices(data.hash, file);
+
+    return true;
+  }
+
+  async broadcastChangeToAllDevices(fileId, changes) {
+    const devices = this.devicesCollection.find();
+
+    for (const device of devices) {
+      console.log('Sending change to device ', device.address);
+
+      // eslint-disable-next-line no-await-in-loop
+      await this.nymClient.sendData({
+        action: 'FILE_UPDATE',
+        fileId,
+        changes,
+      }, device.address);
+    }
   }
 
   async waitTillReady() {
@@ -211,7 +244,9 @@ class DB extends EventEmitter {
 
     this.filesCollection.insert(file);
 
-    return this.encryptAndStore(file);
+    const createdFile = await this.encryptAndStore(file);
+
+    await this.broadcastChangeToAllDevices(createdFile.id, createdFile);
   }
 
   async encryptAndStore(file) {
@@ -249,21 +284,25 @@ class DB extends EventEmitter {
       storedPath: response.path,
     });
 
-    return file;
+    return this.filesCollection.find({ id: hash })[0];
   }
 
   async createFolder({ name, path }) {
     await this.waitTillReady();
 
-    this.filesCollection.insert({
+    const folder = {
       id: Math.random().toString(16).slice(2),
       name,
       path,
       type: 'FOLDER',
-    });
+    };
+
+    this.filesCollection.insert(folder);
+
+    await this.broadcastChangeToAllDevices(folder.id, folder);
   }
 
-  async updateFile(id, changes) {
+  async updateFile(id, changes, broadcastChange = true) {
     await this.waitTillReady();
 
     const file = this.filesCollection.findOne({ id: { $eq: id } });
@@ -275,6 +314,10 @@ class DB extends EventEmitter {
 
       file.updatedAt = new Date();
       this.filesCollection.update(file);
+    }
+
+    if (broadcastChange) {
+      await this.broadcastChangeToAllDevices(id, changes);
     }
   }
 
@@ -466,6 +509,9 @@ class DB extends EventEmitter {
       await this.filesCollection.insert(result.files);
       return true;
     }
+
+    this.devicesCollection.insert({ address });
+    console.log('Added new device', address);
 
     return false;
   }
