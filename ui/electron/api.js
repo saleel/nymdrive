@@ -421,6 +421,8 @@ class DB extends EventEmitter {
     })[0];
 
     try {
+      const sysFile = fs.readFileSync(file.systemPath);
+      fs.writeFileSync(file.systemPath, Buffer.from(new Uint8Array(sysFile.length).fill(0)));
       await fs.unlinkSync(file.systemPath); // TODO: Make it hard delete
     } catch (error) {
       console.error(error);
@@ -455,6 +457,11 @@ class DB extends EventEmitter {
     for (const file of allFiles) {
       if (file.status === Statuses.STORED && file.temporaryLocalPath) {
         try {
+          const sysFile = fs.readFileSync(file.temporaryLocalPath);
+          fs.writeFileSync(
+            file.temporaryLocalPath,
+            Buffer.from(new Uint8Array(sysFile.length).fill(0)),
+          );
           fs.unlinkSync(file.temporaryLocalPath);
         } catch (e) {
           console.error(e);
