@@ -104,6 +104,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
   async function onFileDoubleClick(file) {
     if (file.type === 'FOLDER') {
       setCurrentPath(`${currentPath}${file.name}/`);
+      return;
     }
 
     await window.API.openFile(file.hash);
@@ -321,7 +322,7 @@ const FileExplorer = function FileExplorer({ path: initialPath }) {
             </div>
           )}
 
-          {isClientConnected && files.length > 0 && (
+          {isClientConnected && (files.length > 0 || currentPath !== GlobalPaths.Home) && (
             <div
               className="pane"
               onDragEnter={(e) => { e.preventDefault(); }}
